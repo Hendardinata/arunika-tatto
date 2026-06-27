@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+{% block title %}InkMaster Studio - Studio Tattoo Profesional{% endblock %}
+{% block meta_description %}InkMaster Studio adalah studio tattoo profesional di Jakarta. Booking artist, lihat portofolio, konsultasi desain, dan pembayaran via WhatsApp. Wujudkan seni di kulitmu!{% endblock %}
+
+{% block content %}
+<!-- ================================================
+     HERO SECTION
+     ================================================ -->
+<section class="hero-section" aria-label="Hero section" style="padding-top:72px;">
+  <div class="container">
+    <div class="hero-content">
+      <span class="badge badge-dark" style="margin-bottom:20px;display:inline-flex;">✦ Premium Tattoo Studio Jakarta</span>
+      <h1>
+        Seni Di Atas<br>
+        <span class="highlight">Kulit</span> Anda
+      </h1>
+      <p>
+        Wujudkan karya seni abadi di tubuh Anda bersama artist profesional kami.
+        Dari desain custom hingga cover up, setiap tattoo dibuat dengan presisi dan passion.
+      </p>
+      <div class="hero-actions">
+        <a href="{{ url_for('customer.booking_page') }}" class="btn btn-dark btn-lg">
+          <i class="fas fa-calendar-check"></i> Booking Sekarang
+        </a>
+        <a href="{{ url_for('public.gallery_page') }}" class="btn btn-gold btn-lg">
+          <i class="fas fa-images"></i> Lihat Portfolio
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================
+     STATS SECTION
+     ================================================ -->
+<section class="section section-dark" aria-label="Studio statistics">
+  <div class="container">
+    <div class="grid grid-4">
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-tattoo"></i></div>
+        <div class="stat-value" data-count="500">0</div>
+        <div class="stat-label">Tattoo Selesai</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-users"></i></div>
+        <div class="stat-value" data-count="8">0</div>
+        <div class="stat-label">Artist Professional</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-smile"></i></div>
+        <div class="stat-value" data-count="450">0</div>
+        <div class="stat-label">Client Puas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-award"></i></div>
+        <div class="stat-value" data-count="15">0</div>
+        <div class="stat-label">Tahun Pengalaman</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================
+     FEATURES / WHY US
+     ================================================ -->
+<section class="section" aria-label="Our services features">
+  <div class="container">
+    <div class="section-header center">
+      <div class="section-divider"></div>
+      <h2>Mengapa Memilih <span class="highlight">Kami</span>?</h2>
+      <p>Kami mengutamakan kualitas, kebersihan, dan kepuasan client dalam setiap karya yang kami buat.</p>
+    </div>
+    <div class="grid grid-3">
+      <div class="card feature-card">
+        <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+        <h3>Steril &amp; Aman</h3>
+        <p>Menggunakan peralatan steril sekali pakai dan standar kebersihan tertinggi untuk keamanan Anda.</p>
+      </div>
+      <div class="card feature-card">
+        <div class="feature-icon"><i class="fas fa-paint-brush"></i></div>
+        <h3>Artist Berpengalaman</h3>
+        <p>Artist kami memiliki pengalaman bertahun-tahun dengan portofolio yang beragam dan berkualitas.</p>
+      </div>
+      <div class="card feature-card">
+        <div class="feature-icon"><i class="fas fa-drafting-compass"></i></div>
+        <h3>Custom Design</h3>
+        <p>Kami membuat desain personal sesuai keinginan dan konsep yang Anda bayangkan.</p>
+      </div>
+      <div class="card feature-card">
+        <div class="feature-icon"><i class="fab fa-whatsapp"></i></div>
+        <h3>Konsultasi Gratis</h3>
+        <p>Konsultasi desain dan harga gratis via WhatsApp sebelum Anda memutuskan untuk booking.</p>
+      </div>
+      <div class="card feature-card">
+        <div class="feature-icon"><i class="fas fa-hand-holding-heart"></i></div>
+        <h3>Aftercare</h3>
+        <p>Kami memberikan panduan perawatan lengkap untuk memastikan tattoo Anda sembuh sempurna.</p>
+      </div>
+      <div class="card feature-card">
+        <div class="feature-icon"><i class="fas fa-credit-card"></i></div>
+        <h3>Pembayaran Mudah</h3>
+        <p>Pembayaran via transfer bank dengan konfirmasi cepat melalui WhatsApp.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================
+     ARTISTS PREVIEW
+     ================================================ -->
+<section class="section section-dark" aria-label="Featured artists">
+  <div class="container">
+    <div class="section-header center">
+      <div class="section-divider"></div>
+      <h2>Meet Our <span class="highlight">Artists</span></h2>
+      <p>Kenali artist berbakat kami yang siap mewujudkan tattoo impian Anda.</p>
+    </div>
+    <div class="grid grid-3" id="artists-preview">
+      <div class="text-center" style="grid-column:1/-1;padding:48px">
+        <div class="spinner" style="margin:0 auto;"></div>
+        <p class="mt-4 text-muted">Memuat data artists...</p>
+      </div>
+    </div>
+    <div class="text-center mt-8">
+      <a href="{{ url_for('public.artists_page') }}" class="btn btn-dark">
+        <i class="fas fa-users"></i> Lihat Semua Artist
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================
+     GALLERY PREVIEW
+     ================================================ -->
+<section class="section" aria-label="Gallery preview">
+  <div class="container">
+    <div class="section-header center">
+      <div class="section-divider"></div>
+      <h2>Portfolio <span class="highlight">Karya</span></h2>
+      <p>Lihat hasil karya terbaik dari artist kami dalam berbagai gaya dan kategori.</p>
+    </div>
+  </div>
+  <div class="gallery-grid container" id="gallery-preview" style="margin-top:32px;">
+    <div class="text-center" style="grid-column:1/-1;padding:48px">
+      <div class="spinner" style="margin:0 auto;"></div>
+      <p class="mt-4 text-muted">Memuat gallery...</p>
+    </div>
+  </div>
+  <div class="text-center mt-8">
+    <a href="{{ url_for('public.gallery_page') }}" class="btn btn-dark">
+      <i class="fas fa-images"></i> Lihat Gallery Lengkap
+    </a>
+  </div>
+</section>
+
+<!-- ================================================
+     SERVICES PREVIEW
+     ================================================ -->
+<section class="section section-dark" aria-label="Services and pricing">
+  <div class="container">
+    <div class="section-header center">
+      <div class="section-divider"></div>
+      <h2>Harga <span class="highlight">Layanan</span></h2>
+      <p>Harga transparan tanpa biaya tersembunyi. Konsultasi gratis untuk desain custom.</p>
+    </div>
+    <div class="grid grid-3" id="services-preview">
+      <div class="text-center" style="grid-column:1/-1;padding:48px">
+        <div class="spinner" style="margin:0 auto;"></div>
+        <p class="mt-4 text-muted">Memuat layanan...</p>
+      </div>
+    </div>
+    <div class="text-center mt-8">
+      <a href="{{ url_for('public.services_page') }}" class="btn btn-dark">
+        <i class="fas fa-list"></i> Lihat Semua Layanan
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================
+     CTA SECTION
+     ================================================ -->
+<section class="section section-yellow" aria-label="Call to action">
+  <div class="container text-center">
+    <h2 style="margin-bottom:16px;">Siap Untuk Tattoo Baru?</h2>
+    <p style="max-width:500px;margin:0 auto 32px;color:var(--dark);font-size:var(--text-lg);">
+      Jangan tunda lagi! Booking sekarang dan konsultasikan desain tattoo impian Anda dengan artist kami.
+    </p>
+    <div class="flex justify-center gap-4 flex-wrap">
+      <a href="{{ url_for('customer.booking_page') }}" class="btn btn-dark btn-lg">
+        <i class="fas fa-calendar-check"></i> Booking Now
+      </a>
+      <a href="https://wa.me/6281234567890" target="_blank" class="btn btn-outline btn-lg">
+        <i class="fab fa-whatsapp"></i> Chat WhatsApp
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Load artists preview
+  fetch('/api/artists?limit=3')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var container = document.getElementById('artists-preview');
+      if (!container) return;
+      if (data.artists && data.artists.length) {
+        container.innerHTML = data.artists.map(function(artist) {
+          return '<div class="card artist-card">' +
+            '<div style="height:280px;background:var(--gray);display:flex;align-items:center;justify-content:center;color:var(--gray-300);font-size:72px;border-bottom:4px solid var(--dark);">' +
+            '<i class="fas fa-user-circle"></i></div>' +
+            '<div class="card-body">' +
+            '<h3 class="card-title">' + (artist.name || 'Tattoo Artist') + '</h3>' +
+            '<p class="artist-spec">' + (artist.specialization || 'Artist') + '</p>' +
+            '<p class="card-text">' + (artist.description || '').substring(0, 100) + '</p>' +
+            '</div></div>';
+        }).join('');
+      } else {
+        container.innerHTML = '<div class="text-center" style="grid-column:1/-1;padding:48px"><p class="text-muted">Belum ada artist.</p></div>';
+      }
+    })
+    .catch(function() {});
+
+  // Load gallery preview
+  fetch('/api/gallery?limit=4')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var container = document.getElementById('gallery-preview');
+      if (!container) return;
+      if (data.gallery && data.gallery.length) {
+        container.innerHTML = data.gallery.map(function(item) {
+          return '<div class="gallery-item">' +
+            '<div style="height:100%;min-height:200px;background:var(--gray);display:flex;align-items:center;justify-content:center;color:var(--gray-300);">' +
+            '<i class="fas fa-image" style="font-size:48px;"></i></div>' +
+            '<div class="gallery-overlay">' +
+            '<h4>' + (item.title || 'Karya') + '</h4>' +
+            '<p>' + (item.category || '') + '</p>' +
+            '</div></div>';
+        }).join('');
+      } else {
+        container.innerHTML = '<div class="text-center" style="grid-column:1/-1;padding:48px"><p class="text-muted">Belum ada karya.</p></div>';
+      }
+    })
+    .catch(function() {});
+
+  // Load services preview
+  fetch('/api/services?limit=3')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var container = document.getElementById('services-preview');
+      if (!container) return;
+      if (data.services && data.services.length) {
+        container.innerHTML = data.services.map(function(service) {
+          var price = service.price ? 'Rp ' + Number(service.price).toLocaleString('id-ID') : 'Hubungi';
+          return '<div class="card feature-card text-center">' +
+            '<div class="feature-icon" style="margin:0 auto var(--space-5);"><i class="fas fa-tag"></i></div>' +
+            '<h3>' + (service.name || 'Layanan') + '</h3>' +
+            '<div class="price price-lg" style="margin:16px 0;">' + price + '</div>' +
+            '<p class="card-text">' + (service.description || '').substring(0, 120) + '</p>' +
+            '<a href="/booking?service=' + (service._id || '') + '" class="btn btn-gold btn-sm" style="margin-top:16px;">Booking</a>' +
+            '</div>';
+        }).join('');
+      } else {
+        container.innerHTML = '<div class="text-center" style="grid-column:1/-1;padding:48px"><p class="text-muted">Belum ada layanan.</p></div>';
+      }
+    })
+    .catch(function() {});
+
+  // Animated counter
+  var counters = document.querySelectorAll('[data-count]');
+  counters.forEach(function(counter) {
+    var target = parseInt(counter.getAttribute('data-count'));
+    var current = 0;
+    var increment = Math.ceil(target / 60);
+    var timer = setInterval(function() {
+      current += increment;
+      if (current >= target) { current = target; clearInterval(timer); }
+      counter.textContent = current.toLocaleString() + '+';
+    }, 30);
+  });
+});
+</script>
+{% endblock %}
