@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Register - InkMaster Studio{% endblock %}
+{% block meta_description %}Daftar akun InkMaster Studio untuk booking tattoo, konsultasi artist, dan akses fitur eksklusif.{% endblock %}
+
+{% block content %}
+<section class="page-wrapper">
+  <div class="container">
+    <div class="auth-card" style="max-width:520px;">
+      <div class="text-center" style="margin-bottom:32px;">
+        <div class="auth-logo">🖊</div>
+        <h2 style="font-size:1.8rem;margin-bottom:8px;">Buat Akun Baru</h2>
+        <p class="text-muted text-sm">Daftar untuk mulai booking tattoo impian Anda</p>
+      </div>
+
+      <form method="POST" action="{{ url_for('register_page') }}" id="register-form">
+        <div class="grid grid-2" style="gap:16px;">
+          <div class="form-group">
+            <label for="fullname" class="form-label">Nama Lengkap</label>
+            <input type="text" id="fullname" name="fullname" class="form-input" placeholder="Andi Pratama" required>
+          </div>
+          <div class="form-group">
+            <label for="phone" class="form-label">No. WhatsApp</label>
+            <input type="tel" id="phone" name="phone" class="form-input" placeholder="081234567890" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="email" class="form-label">Email</label>
+          <input type="email" id="email" name="email" class="form-input" placeholder="nama@email.com" required>
+        </div>
+        <div class="form-group">
+          <label for="password" class="form-label">Password</label>
+          <input type="password" id="password" name="password" class="form-input" placeholder="Minimal 6 karakter" required minlength="6">
+        </div>
+        <div class="form-group">
+          <label for="confirm_password" class="form-label">Konfirmasi Password</label>
+          <input type="password" id="confirm_password" name="confirm_password" class="form-input" placeholder="Ulangi password" required>
+        </div>
+        <button type="submit" class="btn btn-gold w-full btn-lg" style="margin-top:8px;">
+          <i class="fas fa-user-plus"></i> Daftar
+        </button>
+      </form>
+
+      <div class="divider my-6">atau</div>
+
+      <p class="text-center text-sm">
+        Sudah punya akun?
+        <a href="{{ url_for('login_page') }}" style="font-weight:700;color:var(--dark);text-decoration:underline;">Login di sini</a>
+      </p>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('register-form')?.addEventListener('submit', function(e) {
+  var password = document.getElementById('password');
+  var confirm = document.getElementById('confirm_password');
+  if (password.value !== confirm.value) {
+    e.preventDefault();
+    alert('Password dan konfirmasi password tidak cocok');
+  }
+});
+</script>
+{% endblock %}

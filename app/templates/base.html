@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="{% block meta_description %}Tattoo Studio Management System - Booking, portofolio, dan manajemen studio tattoo profesional.{% endblock %}">
+
+  <title>{% block title %}InkMaster Studio - Tattoo Studio Management{% endblock %}</title>
+
+  <!-- Google Fonts: Poppins + Space Grotesk -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700;800;900&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome 6 (Free) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Neo-Brutalism Design System -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/design-system.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/utilities.css') }}">
+
+  {% block extra_css %}{% endblock %}
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='16' fill='%23FFD23F'/%3E%3Ctext y='.9em' font-size='80' x='10'%3E🖊%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="toast-container" id="flash-container">
+      {% for category, message in messages %}
+      <div class="toast toast-{{ category }}" onclick="this.remove()">
+        <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'error' %}exclamation-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+        <span>{{ message }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- Navbar -->
+  <nav class="navbar" id="main-navbar" role="navigation" aria-label="Navigasi utama">
+    <div class="navbar-container">
+      <a href="{{ url_for('index') }}" class="navbar-brand" aria-label="InkMaster Studio Home">
+        <div class="navbar-brand-icon">🖊</div>
+        InkMaster Studio
+      </a>
+
+      <button class="navbar-toggler" id="navbar-toggler" aria-label="Toggle navigasi" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+
+      <ul class="navbar-links" id="navbar-links" role="menubar">
+        <li role="none"><a href="{{ url_for('index') }}" role="menuitem" class="{{ 'active' if request.endpoint == 'index' else '' }}">Home</a></li>
+        <li role="none"><a href="{{ url_for('gallery_page') }}" role="menuitem" class="{{ 'active' if request.endpoint and 'gallery' in request.endpoint else '' }}">Gallery</a></li>
+        <li role="none"><a href="{{ url_for('artists_page') }}" role="menuitem" class="{{ 'active' if request.endpoint and 'artist' in request.endpoint else '' }}">Artists</a></li>
+        <li role="none"><a href="{{ url_for('services_page') }}" role="menuitem" class="{{ 'active' if request.endpoint and 'service' in request.endpoint else '' }}">Services</a></li>
+        <li role="none"><a href="{{ url_for('booking_page') }}" role="menuitem" class="{{ 'active' if request.endpoint and 'booking' in request.endpoint else '' }}">Booking</a></li>
+        {% if session.get('user_id') %}
+          {% if session.get('role') == 'admin' %}
+          <li role="none"><a href="{{ url_for('admin_dashboard') }}" role="menuitem">Admin Panel</a></li>
+          {% else %}
+          <li role="none"><a href="{{ url_for('customer_dashboard') }}" role="menuitem" class="{{ 'active' if request.endpoint and 'dashboard' in request.endpoint else '' }}">Dashboard</a></li>
+          {% endif %}
+          <li role="none"><a href="{{ url_for('logout') }}" role="menuitem" class="btn btn-gold btn-sm" style="background:var(--error);color:white;border-color:var(--dark);">Logout</a></li>
+        {% else %}
+        <li role="none"><a href="{{ url_for('login_page') }}" role="menuitem" class="btn btn-gold btn-sm">Login</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">
+            <div class="footer-brand-icon">🖊</div>
+            InkMaster Studio
+          </div>
+          <p class="footer-desc">Studio tattoo profesional dengan artist berpengalaman. Kami mewujudkan seni di atas kulit dengan kualitas terbaik dan desain eksklusif.</p>
+          <div class="footer-social">
+            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+            <a href="#" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-heading">Menu</h4>
+          <ul class="footer-links">
+            <li><a href="{{ url_for('index') }}">Home</a></li>
+            <li><a href="{{ url_for('gallery_page') }}">Gallery</a></li>
+            <li><a href="{{ url_for('artists_page') }}">Artists</a></li>
+            <li><a href="{{ url_for('services_page') }}">Services</a></li>
+            <li><a href="{{ url_for('booking_page') }}">Booking</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer-heading">Layanan</h4>
+          <ul class="footer-links">
+            <li><a href="#">Small Tattoo</a></li>
+            <li><a href="#">Medium Tattoo</a></li>
+            <li><a href="#">Large Tattoo</a></li>
+            <li><a href="#">Cover Up</a></li>
+            <li><a href="#">Custom Design</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer-heading">Kontak</h4>
+          <ul class="footer-links">
+            <li><a href="#"><i class="fab fa-whatsapp"></i> +62 812 3456 7890</a></li>
+            <li><a href="#"><i class="fas fa-envelope"></i> hello@inkmaster.id</a></li>
+            <li><a href="#"><i class="fas fa-map-marker-alt"></i> Jakarta, Indonesia</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 InkMaster Studio. All rights reserved.</span>
+        <span>Made with <i class="fas fa-heart" style="color:var(--secondary);"></i> for tattoo art</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Core JavaScript -->
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script>
+    // Navbar toggler
+    var toggler = document.getElementById('navbar-toggler');
+    var navLinks = document.getElementById('navbar-links');
+    if (toggler && navLinks) {
+      toggler.addEventListener('click', function() {
+        navLinks.classList.toggle('open');
+        this.setAttribute('aria-expanded', navLinks.classList.contains('open'));
+      });
+    }
+
+    // Dropdown toggle
+    function toggleDropdown(e) {
+      e.preventDefault();
+      var menu = document.getElementById('user-dropdown');
+      if (menu) menu.classList.toggle('show');
+    }
+    document.addEventListener('click', function(e) {
+      var menu = document.getElementById('user-dropdown');
+      if (menu && !e.target.closest('.dropdown')) menu.classList.remove('show');
+    });
+
+    // Auto-dismiss flash toasts
+    setTimeout(function() {
+      var container = document.getElementById('flash-container');
+      if (container) container.style.display = 'none';
+    }, 5000);
+  </script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

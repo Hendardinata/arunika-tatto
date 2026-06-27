@@ -1,0 +1,23 @@
+/* components.css – Component specific styles for Neo‑Brutalism UI */
+/* Example: custom button overrides, card tweaks, navbar specifics */
+
+/* Button component overrides */
+.btn {
+  border-width: var(--border-width);
+  border-color: var(--border-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  transition: var(--transition-duration);
+}
+
+/* Card component overrides */
+.card {
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+}
+
+/* Navbar component overrides */
+.navbar {
+  border-bottom: var(--border-width) solid var(--border-color);
+}

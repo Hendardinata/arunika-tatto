@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Artists - InkMaster Studio{% endblock %}
+{% block meta_description %}Kenali para tattoo artist profesional InkMaster Studio. Lihat portofolio, spesialisasi, dan booking artist favorit Anda.{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <div class="container">
+    <span class="badge badge-dark" style="margin-bottom:12px;">✦ Tim Kami</span>
+    <h1>Our <span style="background:var(--dark);color:var(--primary);padding:0 10px;border-radius:8px;">Artists</span></h1>
+    <p>Kenali lebih dekat para artist berbakat kami yang siap mewujudkan tattoo impian Anda dengan gaya dan keahlian masing-masing.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <!-- Toolbar -->
+    <div class="flex items-center justify-between flex-wrap gap-4" style="margin-bottom:32px;">
+      <div style="position:relative;flex:1;max-width:320px;">
+        <i class="fas fa-search" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--gray-600);"></i>
+        <input type="text" id="artist-search" class="form-input" style="padding-left:42px;" placeholder="Cari artist..." oninput="filterArtists(this.value)">
+      </div>
+      <select class="form-select" id="specialty-filter" onchange="filterArtists()" style="width:auto;min-width:200px;">
+        <option value="">Semua Spesialisasi</option>
+        <option value="tradisional">Tradisional</option>
+        <option value="realism">Realism</option>
+        <option value="geometric">Geometric</option>
+        <option value="watercolor">Watercolor</option>
+        <option value="tribal">Tribal</option>
+        <option value="japanese">Japanese</option>
+        <option value="blackwork">Blackwork</option>
+        <option value="coverup">Cover Up</option>
+      </select>
+    </div>
+
+    <div class="grid grid-3" id="artists-container">
+      <div class="text-center" style="grid-column:1/-1;padding:48px;">
+        <div class="spinner" style="margin:0 auto;"></div>
+        <p class="mt-4 text-muted">Memuat data artists...</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+var allArtists = [];
+
+document.addEventListener('DOMContentLoaded', function() {
+  fetch('/api/artists')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.artists && data.artists.length) {
+        allArtists = data.artists;
+        renderArtists(allArtists);
+      } else {
+        document.getElementById('artists-container').innerHTML =
+          '<div class="text-center" style="grid-column:1/-1;padding:48px;">' +
+          '<i class="fas fa-users" style="font-size:48px;color:var(--gray-300);margin-bottom:16px;display:block;"></i>' +
+          '<h3>Belum Ada Artist</h3><p class="text-muted">Belum ada tattoo artist yang terdaftar.</p></div>';
+      }
+    })
+    .catch(function() {
+      document.getElementById('artists-container').innerHTML =
+        '<div class="text-center" style="grid-column:1/-1;padding:48px;">' +
+        '<i class="fas fa-exclamation-triangle" style="font-size:48px;color:var(--secondary);margin-bottom:16px;display:block;"></i>' +
+        '<h3>Gagal Memuat Data</h3><p class="text-muted">Silakan coba lagi nanti.</p></div>';
+    });
+});
+
+function renderArtists(artists) {
+  var container = document.getElementById('artists-container');
+  if (!artists.length) {
+    container.innerHTML = '<div class="text-center" style="grid-column:1/-1;padding:48px;">' +
+      '<i class="fas fa-search" style="font-size:48px;color:var(--gray-300);margin-bottom:16px;display:block;"></i>' +
+      '<h3>Tidak Ditemukan</h3><p class="text-muted">Tidak ada artist yang cocok dengan pencarian Anda.</p></div>';
+    return;
+  }
+  container.innerHTML = artists.map(function(artist) {
+    return '<div class="card artist-card">' +
+      '<div style="height:280px;background:var(--gray);display:flex;align-items:center;justify-content:center;color:var(--gray-300);font-size:80px;border-bottom:4px solid var(--dark);">' +
+      '<i class="fas fa-user-circle"></i></div>' +
+      '<div class="card-body text-center">' +
+      '<h3 class="card-title">' + (artist.name || 'Tattoo Artist') + '</h3>' +
+      '<p class="artist-spec"><i class="fas fa-paint-brush"></i> ' + (artist.specialization || 'Artist') + '</p>' +
+      (artist.experience ? '<p class="text-sm text-muted" style="margin-bottom:8px;"><i class="fas fa-star"></i> ' + artist.experience + '</p>' : '') +
+      '<p class="card-text">' + (artist.description || '').substring(0, 150) + '</p>' +
+      '<div class="flex justify-center gap-3" style="margin-top:16px;">' +
+      (artist.instagram ? '<a href="https://instagram.com/' + artist.instagram + '" target="_blank" class="btn btn-outline btn-sm"><i class="fab fa-instagram"></i> IG</a>' : '') +
+      '<a href="/booking?artist=' + (artist._id || '') + '" class="btn btn-gold btn-sm"><i class="fas fa-calendar-check"></i> Booking</a>' +
+      '</div></div></div>';
+  }).join('');
+}
+
+function filterArtists(query) {
+  var searchInput = document.getElementById('artist-search');
+  var specialtyFilter = document.getElementById('specialty-filter');
+  var search = (query !== undefined ? query : (searchInput ? searchInput.value : '')).toLowerCase();
+  var specialty = specialtyFilter ? specialtyFilter.value.toLowerCase() : '';
+
+  var filtered = allArtists.filter(function(artist) {
+    var matchSearch = !search || (artist.name && artist.name.toLowerCase().includes(search)) ||
+      (artist.specialization && artist.specialization.toLowerCase().includes(search));
+    var matchSpecialty = !specialty || (artist.specialization && artist.specialization.toLowerCase().includes(specialty));
+    return matchSearch && matchSpecialty;
+  });
+  renderArtists(filtered);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Gallery - InkMaster Studio{% endblock %}
+{% block meta_description %}Jelajahi galeri karya tattoo InkMaster Studio. Lihat hasil karya artist kami dalam berbagai gaya: realism, tradisional, geometric, watercolor, dan banyak lagi.{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <div class="container">
+    <span class="badge badge-dark" style="margin-bottom:12px;">✦ Portfolio Kami</span>
+    <h1>Portfolio <span style="background:var(--dark);color:var(--primary);padding:0 10px;border-radius:8px;">Karya</span></h1>
+    <p>Jelajahi hasil karya terbaik dari para artist kami. Setiap tattoo adalah karya seni yang dibuat dengan penuh dedikasi.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <!-- Filter Toolbar -->
+    <div class="flex items-center justify-between flex-wrap gap-4" style="margin-bottom:32px;">
+      <div style="position:relative;flex:1;max-width:300px;">
+        <i class="fas fa-search" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--gray-600);"></i>
+        <input type="text" id="gallery-search" class="form-input" style="padding-left:42px;" placeholder="Cari karya..." oninput="filterGallery(this.value)">
+      </div>
+      <div class="flex gap-3 flex-wrap" id="category-filters">
+        <button class="btn btn-dark btn-sm active-filter" data-category="" onclick="filterByCategory(this, '')">Semua</button>
+        <button class="btn btn-outline btn-sm" data-category="tradisional" onclick="filterByCategory(this, 'tradisional')">Tradisional</button>
+        <button class="btn btn-outline btn-sm" data-category="realism" onclick="filterByCategory(this, 'realism')">Realism</button>
+        <button class="btn btn-outline btn-sm" data-category="geometric" onclick="filterByCategory(this, 'geometric')">Geometric</button>
+        <button class="btn btn-outline btn-sm" data-category="watercolor" onclick="filterByCategory(this, 'watercolor')">Watercolor</button>
+        <button class="btn btn-outline btn-sm" data-category="blackwork" onclick="filterByCategory(this, 'blackwork')">Blackwork</button>
+      </div>
+    </div>
+
+    <div class="gallery-grid" id="gallery-container">
+      <div class="text-center" style="grid-column:1/-1;padding:48px;">
+        <div class="spinner" style="margin:0 auto;"></div>
+        <p class="mt-4 text-muted">Memuat gallery...</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Gallery Lightbox Modal -->
+<div class="modal-overlay" id="gallery-lightbox" style="display:none;">
+  <div class="modal" style="max-width:700px;">
+    <div class="modal-header">
+      <h4 id="lightbox-title">Karya</h4>
+      <button class="modal-close" onclick="closeLightbox()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div style="width:100%;min-height:300px;background:var(--gray);border:4px solid var(--dark);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--gray-300);margin-bottom:16px;">
+        <i class="fas fa-image" style="font-size:64px;"></i>
+      </div>
+      <p id="lightbox-artist" style="font-weight:700;margin-bottom:4px;"></p>
+      <p id="lightbox-desc" class="text-muted text-sm" style="margin:0;"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="closeLightbox()">Tutup</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+var allGallery = [];
+var currentCategory = '';
+
+document.addEventListener('DOMContentLoaded', function() {
+  fetch('/api/gallery')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.gallery && data.gallery.length) {
+        allGallery = data.gallery;
+        renderGallery(allGallery);
+      } else {
+        document.getElementById('gallery-container').innerHTML =
+          '<div class="text-center" style="grid-column:1/-1;padding:48px;">' +
+          '<i class="fas fa-images" style="font-size:48px;color:var(--gray-300);margin-bottom:16px;display:block;"></i>' +
+          '<h3>Belum Ada Karya</h3><p class="text-muted">Gallery masih kosong.</p></div>';
+      }
+    });
+});
+
+function renderGallery(items) {
+  var container = document.getElementById('gallery-container');
+  if (!items.length) {
+    container.innerHTML = '<div class="text-center" style="grid-column:1/-1;padding:48px;">' +
+      '<i class="fas fa-search" style="font-size:48px;color:var(--gray-300);margin-bottom:16px;display:block;"></i>' +
+      '<h3>Tidak Ditemukan</h3><p class="text-muted">Tidak ada karya yang cocok.</p></div>';
+    return;
+  }
+  container.innerHTML = items.map(function(item, idx) {
+    return '<div class="gallery-item" onclick="openLightbox(' + idx + ')">' +
+      '<div style="height:100%;min-height:220px;background:var(--gray);display:flex;align-items:center;justify-content:center;color:var(--gray-300);">' +
+      '<i class="fas fa-image" style="font-size:48px;"></i></div>' +
+      '<div class="gallery-overlay">' +
+      '<h4>' + (item.title || 'Karya') + '</h4>' +
+      '<p>' + (item.category || '') + '</p>' +
+      '</div></div>';
+  }).join('');
+}
+
+function filterByCategory(btn, category) {
+  currentCategory = category;
+  document.querySelectorAll('#category-filters .btn').forEach(function(b) {
+    b.classList.remove('btn-dark', 'active-filter');
+    b.classList.add('btn-outline');
+  });
+  btn.classList.remove('btn-outline');
+  btn.classList.add('btn-dark', 'active-filter');
+  applyFilters();
+}
+
+function filterGallery(query) { applyFilters(); }
+
+function applyFilters() {
+  var searchInput = document.getElementById('gallery-search');
+  var search = searchInput ? searchInput.value.toLowerCase() : '';
+  var filtered = allGallery.filter(function(item) {
+    var matchCat = !currentCategory || (item.category && item.category.toLowerCase() === currentCategory);
+    var matchSearch = !search || (item.title && item.title.toLowerCase().includes(search));
+    return matchCat && matchSearch;
+  });
+  renderGallery(filtered);
+}
+
+function openLightbox(index) {
+  var item = allGallery[index];
+  if (!item) return;
+  document.getElementById('lightbox-title').textContent = item.title || 'Karya';
+  document.getElementById('lightbox-artist').textContent = item.artist_name ? 'Artist: ' + item.artist_name : '';
+  document.getElementById('lightbox-desc').textContent = item.description || '';
+  document.getElementById('gallery-lightbox').style.display = 'flex';
+}
+
+function closeLightbox() {
+  document.getElementById('gallery-lightbox').style.display = 'none';
+}
+</script>
+{% endblock %}

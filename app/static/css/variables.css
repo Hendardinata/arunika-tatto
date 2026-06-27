@@ -1,0 +1,43 @@
+/* static/css/variables.css */
+:root {
+  /* Colour palette */
+  --primary: #FFD23F;   /* Yellow */
+  --secondary: #FF6B6B; /* Red */
+  --accent: #4ECDC4;    /* Cyan */
+  --dark: #111111;      /* Black */
+  --white: #FFFFFF;
+  --gray: #F5F5F5;
+
+  /* Core Neo‑Brutalism tokens */
+  --border-width: 4px;
+  --border-color: var(--dark);
+  --border-radius: 16px;
+  --box-shadow: 8px 8px 0 var(--dark);
+  --hover-translate: translate(-4px, -4px);
+  --transition-duration: 0.2s;
+
+  /* Spacing (based on 8px grid) */
+  --space-0: 0px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 40px;
+  --space-8: 48px;
+  --space-9: 56px;
+  --space-10: 64px;
+
+  /* Typography */
+  --font-heading: 'Poppins', 'Space Grotesk', sans-serif;
+  --font-body: 'Space Grotesk', 'Poppins', sans-serif;
+  --font-weight-heading: 800;
+  --font-weight-body: 500;
+  --font-size-h1: 64px;
+  --font-size-h2: 56px;
+  --font-size-h3: 48px;
+  --font-size-h4: 32px;
+  --font-size-body-lg: 18px;
+  --font-size-body: 16px;
+}
