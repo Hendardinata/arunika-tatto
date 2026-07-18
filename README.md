@@ -84,7 +84,7 @@ Aplikasi sekarang berjalan! Buka browser Anda dan kunjungi:
 ### Login Admin
 Untuk mengakses Dasbor Admin, Anda perlu login menggunakan kredensial admin (jika database sudah diisi data awal):
 - **Email Default:** `admin@inkmaster.id` (Silakan cek/sesuaikan di database Anda)
-- **Password Default:** `admin`
+- **Password Default:** `admin123`
 
 ### Menyesuaikan Tampilan
 - **Ganti Pengaturan Kontak:** Masuk ke menu `Settings` di Dasbor Admin, lalu ubah nomor WhatsApp, Email, dan lainnya. Tampilan website (Footer & Navigasi) akan berubah otomatis.
