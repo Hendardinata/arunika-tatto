@@ -1,264 +1,125 @@
-Saya sedang mengembangkan aplikasi web Tattoo Studio Management System menggunakan Flask dan Jinja2.
+# Refactor `frontend/templates/admin/dashboard.html` Menjadi Modular
 
-Tugas Anda adalah menjadi Senior Flask Engineer yang melakukan audit dan refactor seluruh project hingga dapat dijalankan tanpa error.
+Lakukan refactoring pada file:
 
-## Context
+```text
+templates/
+└── admin/
+    └── dashboard.html
+```
 
-Project menggunakan:
+Saat ini seluruh Dashboard Admin berada di dalam satu file `dashboard.html`. Saya ingin file ini dipecah menjadi beberapa template berdasarkan **fitur/menu** agar lebih mudah dikelola, dikembangkan, dan di-maintain.
 
-- Python Flask
-- Jinja2
-- HTML
-- CSS
-- JavaScript
-- Dummy Data (sementara)
-- Nantinya akan menggunakan MongoDB
+## Menu yang Saat Ini Ada
 
-Saat ini project merupakan hasil generate AI sehingga masih banyak kode yang tidak kompatibel dengan Flask.
+Dashboard Admin memiliki menu sebagai berikut:
 
-======================================================
-TARGET
-======================================================
+### Dashboard
 
-Lakukan audit seluruh project dan perbaiki semua permasalahan tanpa mengubah desain UI.
+* Overview
+* Bookings
+* Payments
 
-Pastikan project dapat dijalankan menggunakan
+### Konten Studio
 
-python run.py
+* Artists
+* Services
+* Gallery
+* Customers
 
-tanpa muncul exception.
+### Sistem
 
-======================================================
-HAL YANG HARUS DIPERBAIKI
-======================================================
+* Settings
 
-1. Audit seluruh file HTML
+Selain itu terdapat:
 
-Cari seluruh penggunaan seperti:
+* Logo / Brand
+* Sidebar
+* Header / Topbar
+* Tombol "Lihat Website"
+* Logout
 
-globals()
-globals
-window.globals
+---
 
-yang tidak valid pada Jinja2.
+## Struktur yang Diinginkan
 
-Ganti dengan implementasi Flask yang benar.
+Contoh struktur:
 
-Contoh:
+```text
+templates/
+└── admin/  
+        ├── overview.html
+        ├── bookings.html
+        ├── payments.html
+        ├── artists.html
+        ├── services.html
+        ├── gallery.html
+        ├── customers.html
+        └── settings.html
+```
 
-SALAH
+## Dashboard Utama
 
-{{ url_for('register') if 'register' in globals() else '/register' }}
+File `dashboard.html` sebaiknya hanya berisi:
 
-BENAR
+* Base Layout
+* Include Sidebar
+* Include Header
+* Area Content
+* Include Footer
+* Include Script
 
-{{ url_for('register_post') }}
+Contoh konsep:
 
-atau endpoint Flask yang sesuai.
+```jinja
+dashboard.html
 
-======================================================
+{% include 'admin/partials/sidebar.html' %}
 
-2. Audit seluruh url_for()
+{% include 'admin/partials/header.html' %}
 
-Pastikan semua endpoint benar-benar ada.
+{% include current_page %}
 
-Misalnya
+{% include 'admin/partials/footer.html' %}
 
-url_for("register")
+{% include 'admin/partials/scripts.html' %}
+```
 
-harus diganti apabila endpoint Flask sebenarnya bernama
+Sehingga seluruh isi fitur berada di file masing-masing.
 
-register_post
+---
 
-Lakukan pengecekan semua:
+## Aturan Refactoring
 
-- login
-- register
-- logout
-- dashboard
-- admin
-- payment
-- booking
-- artists
-- gallery
-- services
+Jangan mengubah:
 
-======================================================
-
-3. Audit seluruh render_template()
-
-Pastikan semua file template benar-benar ada.
-
-Contoh:
-
-render_template("payment/index.html")
-
-harus sesuai dengan struktur folder.
-
-======================================================
-
-4. Audit Context Processor
-
-Jangan gunakan globals().
-
-Gunakan context_processor Flask dengan benar.
-
-Misalnya:
-
-@app.context_processor
-def inject_globals():
-    return {
-        "session": session,
-        "now": datetime.now()
-    }
-
-Lalu ubah template agar menggunakan
-
-{{ session }}
-
-{{ now }}
-
-tanpa globals.
-
-======================================================
-
-5. Audit Struktur Folder
-
-Pastikan Flask menggunakan struktur folder project yang benar.
-
-Jika run.py berada di root sedangkan template berada di
-
-app/templates
-
-maka inisialisasi Flask harus menjadi
-
-app = Flask(
-    __name__,
-    template_folder="app/templates",
-    static_folder="app/static"
-)
-
-Pastikan seluruh static file dapat diakses.
-
-======================================================
-
-6. Audit Static
-
-Periksa seluruh
-
-url_for('static', filename=...)
-
-Pastikan path benar.
-
-======================================================
-
-7. Audit JavaScript
-
-Cari error JS seperti
-
-showToast is not defined
-
-Bootstrap Modal tidak ditemukan
-
-document.querySelector menghasilkan null
-
-dan perbaiki.
-
-======================================================
-
-8. Audit Form
-
-Pastikan seluruh form
-
-method
-
-action
-
-CSRF (jika ada)
-
-redirect
-
-flash message
-
-berjalan dengan benar.
-
-======================================================
-
-9. Audit Template Inheritance
-
-Pastikan
-
-base.html
-
-memiliki block
-
-title
-
-content
-
-extra_css
-
-extra_js
-
-dan seluruh template child menggunakan block yang benar.
-
-======================================================
-
-10. Audit Routing
-
-Pastikan seluruh route memiliki endpoint yang unik.
-
-Contoh
-
-@app.route("/register")
-def register_page():
-
-@app.route("/register", methods=["POST"])
-def register_post():
-
-dan seluruh template mengarah ke endpoint yang benar.
-
-======================================================
-
-11. Jangan Mengubah UI
-
-Jangan mengubah layout.
-
-Jangan mengubah styling.
-
-Jangan mengubah warna.
-
-Jangan mengubah tampilan.
-
-Hanya memperbaiki kode.
-
-======================================================
-
-12. Output
-
-Untuk setiap file yang diperbaiki:
-
-- Jelaskan masalahnya
-- Jelaskan penyebabnya
-- Berikan kode lengkap yang sudah diperbaiki
-- Jangan hanya memberikan potongan kode
-- Jangan menghilangkan fitur yang sudah ada
-
-======================================================
-
-13. Validasi Akhir
-
-Pastikan project dapat dijalankan tanpa error:
-
-- Jinja2 UndefinedError
-- BuildError
-- TemplateNotFound
-- KeyError
-- AttributeError
-- url_for BuildError
-- globals is undefined
-- Static file not found
-
-======================================================
-
-Lakukan audit secara menyeluruh seperti seorang Senior Flask Architect dan jangan berhenti setelah menemukan satu error. Lanjutkan hingga seluruh project konsisten dan siap digunakan sebagai dasar pengembangan berikutnya.
+* UI
+* UX
+* CSS
+* JavaScript
+* API
+* Route
+* Function
+* Event
+* AJAX / Fetch
+* Database
+
+Refactoring ini hanya bertujuan memisahkan struktur file agar lebih modular.
+
+---
+
+## Hasil yang Diharapkan
+
+Setelah refactoring:
+
+* `dashboard.html` menjadi file utama yang ringan.
+* Setiap menu memiliki file template sendiri.
+* Sidebar terpisah.
+* Header terpisah.
+* Footer terpisah.
+* Script dipisahkan apabila memungkinkan.
+* Kode lebih bersih dan mudah dipahami.
+* Mudah menambahkan fitur baru tanpa membuat satu file menjadi ribuan baris.
+* Meminimalkan konflik saat pengembangan dan mempermudah maintenance.
+
+Pastikan seluruh fungsi tetap berjalan 100% sama seperti sebelum refactoring (backward compatible), sehingga perubahan ini hanya meningkatkan struktur proyek tanpa mengubah perilaku aplikasi.

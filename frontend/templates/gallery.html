@@ -46,8 +46,9 @@
       <button class="modal-close" onclick="closeLightbox()">&times;</button>
     </div>
     <div class="modal-body">
-      <div style="width:100%;min-height:300px;background:var(--gray);border:4px solid var(--dark);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--gray-300);margin-bottom:16px;">
-        <i class="fas fa-image" style="font-size:64px;"></i>
+      <div style="width:100%;min-height:300px;background:var(--gray);border:4px solid var(--dark);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--gray-300);margin-bottom:16px;overflow:hidden;">
+        <i id="lightbox-icon" class="fas fa-image" style="font-size:64px;"></i>
+        <img id="lightbox-img" src="" style="display:none;width:100%;height:100%;object-fit:cover;" alt="Gallery Image">
       </div>
       <p id="lightbox-artist" style="font-weight:700;margin-bottom:4px;"></p>
       <p id="lightbox-desc" class="text-muted text-sm" style="margin:0;"></p>
@@ -89,9 +90,10 @@ function renderGallery(items) {
     return;
   }
   container.innerHTML = items.map(function(item, idx) {
+    var imageHtml = item.image ? '<img src="/static/uploads/' + item.image + '" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">' : '<i class="fas fa-image" style="font-size:48px;"></i>';
     return '<div class="gallery-item" onclick="openLightbox(' + idx + ')">' +
-      '<div style="height:100%;min-height:220px;background:var(--gray);display:flex;align-items:center;justify-content:center;color:var(--gray-300);">' +
-      '<i class="fas fa-image" style="font-size:48px;"></i></div>' +
+      '<div style="height:100%;min-height:220px;background:var(--gray);display:flex;align-items:center;justify-content:center;color:var(--gray-300);border-radius:12px;overflow:hidden;">' +
+      imageHtml + '</div>' +
       '<div class="gallery-overlay">' +
       '<h4>' + (item.title || 'Karya') + '</h4>' +
       '<p>' + (item.category || '') + '</p>' +
@@ -129,6 +131,18 @@ function openLightbox(index) {
   document.getElementById('lightbox-title').textContent = item.title || 'Karya';
   document.getElementById('lightbox-artist').textContent = item.artist_name ? 'Artist: ' + item.artist_name : '';
   document.getElementById('lightbox-desc').textContent = item.description || '';
+  
+  var icon = document.getElementById('lightbox-icon');
+  var img = document.getElementById('lightbox-img');
+  if (item.image) {
+    img.src = '/static/uploads/' + item.image;
+    img.style.display = 'block';
+    icon.style.display = 'none';
+  } else {
+    img.style.display = 'none';
+    icon.style.display = 'block';
+  }
+  
   document.getElementById('gallery-lightbox').style.display = 'flex';
 }
 

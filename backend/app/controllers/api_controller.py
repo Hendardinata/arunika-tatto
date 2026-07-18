@@ -79,15 +79,25 @@ def api_slots():
 @login_required
 @role_required("admin")
 def api_add_artist():
-    data = request.get_json() or {}
+    data = request.form if request.form else request.get_json(silent=True) or {}
     if not data.get("name"):
         return jsonify({"success": False, "message": "Nama artist wajib diisi"}), 400
+        
+    image_filename = None
+    file = request.files.get("image")
+    if file and file.filename:
+        upload_folder = current_app.config.get("UPLOAD_FOLDER", "frontend/static/uploads")
+        os.makedirs(upload_folder, exist_ok=True)
+        image_filename = f"artist_{int(datetime.now().timestamp())}_{file.filename}"
+        file.save(os.path.join(upload_folder, image_filename))
+        
     new_artist = {
         "name": data.get("name"),
         "specialization": data.get("specialization", ""),
         "experience": data.get("experience", ""),
         "instagram": data.get("instagram", ""),
         "description": data.get("description", ""),
+        "image": image_filename,
         "status": "active",
         "created_at": datetime.now()
     }
@@ -105,13 +115,14 @@ def api_delete_artist(artist_id):
     return jsonify({"success": False, "message": "Artist tidak ditemukan"}), 404
 
 
-@api_bp.route("/artists/<artist_id>", methods=["PUT"])
+@api_bp.route("/artists/<artist_id>", methods=["PUT", "POST"])
 @login_required
 @role_required("admin")
 def api_update_artist(artist_id):
-    data = request.get_json() or {}
+    data = request.form if request.form else request.get_json(silent=True) or {}
     if not data.get("name"):
         return jsonify({"success": False, "message": "Nama artist wajib diisi"}), 400
+        
     update_data = {
         "name":           data.get("name"),
         "specialization": data.get("specialization", ""),
@@ -121,6 +132,15 @@ def api_update_artist(artist_id):
         "status":         data.get("status", "active"),
         "updated_at":     datetime.now()
     }
+    
+    file = request.files.get("image")
+    if file and file.filename:
+        upload_folder = current_app.config.get("UPLOAD_FOLDER", "frontend/static/uploads")
+        os.makedirs(upload_folder, exist_ok=True)
+        image_filename = f"artist_{int(datetime.now().timestamp())}_{file.filename}"
+        file.save(os.path.join(upload_folder, image_filename))
+        update_data["image"] = image_filename
+        
     result = artist_repo.update(artist_id, update_data)
     if result:
         return jsonify({"success": True, "message": "Artist berhasil diupdate"})
@@ -139,6 +159,7 @@ def api_add_service():
     new_service = {
         "name": data.get("name"),
         "price": int(data.get("price", 0)),
+        "discount": int(data.get("discount", 0)),
         "duration": int(data.get("duration", 0)) if data.get("duration") else None,
         "description": data.get("description", ""),
         "created_at": datetime.now()
@@ -167,6 +188,7 @@ def api_update_service(service_id):
     update_data = {
         "name":        data.get("name"),
         "price":       int(data.get("price", 0)),
+        "discount":    int(data.get("discount", 0)),
         "duration":    int(data.get("duration")) if data.get("duration") else None,
         "description": data.get("description", ""),
         "updated_at":  datetime.now()
@@ -239,10 +261,22 @@ def api_bookings():
     return jsonify({"success": True, "bookings": bookings})
 
 
-@api_bp.route("/bookings/<booking_id>", methods=["PUT"])
+@api_bp.route("/bookings/<booking_id>", methods=["GET", "PUT"])
 @login_required
-@role_required("admin")
 def api_update_booking(booking_id):
+    if request.method == "GET":
+        booking = booking_service.booking_repo.find_by_id(booking_id)
+        if booking:
+            # Check if user owns the booking or is admin
+            if session.get("role") != "admin" and booking.get("customer_id") != session.get("user_id"):
+                return jsonify({"success": False, "message": "Unauthorized"}), 403
+            return jsonify({"success": True, "booking": serialize_doc(booking)})
+        return jsonify({"success": False, "message": "Booking tidak ditemukan"}), 404
+
+    # PUT request logic
+    if session.get("role") != "admin":
+        return jsonify({"success": False, "message": "Unauthorized"}), 403
+        
     data = request.get_json() or {}
     new_status = data.get("status")
     if not new_status:

@@ -274,25 +274,25 @@ document.addEventListener('DOMContentLoaded', function () {
       },
       body: JSON.stringify(data)
     })
-    .then(function (response) {
-      return response.json().then(function (json) {
-        return { status: response.status, json: json };
+      .then(function (response) {
+        return response.json().then(function (json) {
+          return { status: response.status, json: json };
+        });
+      })
+      .then(function (result) {
+        hideLoading();
+        if (result.status >= 200 && result.status < 300) {
+          if (typeof onSuccess === 'function') onSuccess(result.json);
+        } else {
+          if (typeof onError === 'function') onError(result.json);
+          else showToast(result.json.message || 'Terjadi kesalahan', 'error');
+        }
+      })
+      .catch(function (err) {
+        hideLoading();
+        showToast('Network error: ' + err.message, 'error');
+        if (typeof onError === 'function') onError(err);
       });
-    })
-    .then(function (result) {
-      hideLoading();
-      if (result.status >= 200 && result.status < 300) {
-        if (typeof onSuccess === 'function') onSuccess(result.json);
-      } else {
-        if (typeof onError === 'function') onError(result.json);
-        else showToast(result.json.message || 'Terjadi kesalahan', 'error');
-      }
-    })
-    .catch(function (err) {
-      hideLoading();
-      showToast('Network error: ' + err.message, 'error');
-      if (typeof onError === 'function') onError(err);
-    });
   };
 
   /* --- Scroll Animation: fade-in-up on viewport enter --- */

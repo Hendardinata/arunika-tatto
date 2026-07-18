@@ -198,8 +198,20 @@ document.addEventListener('DOMContentLoaded', function() {
       if (data.services && data.services.length) {
         select.innerHTML = '<option value="">-- Pilih Layanan --</option>';
         data.services.forEach(function(service) {
-          var price = service.price ? 'Rp ' + Number(service.price).toLocaleString('id-ID') : 'Hubungi';
-          select.innerHTML += '<option value="' + (service._id || '') + '">' + (service.name || 'Service') + ' - ' + price + '</option>';
+          var basePrice = service.price ? Number(service.price) : 0;
+          var discount = service.discount ? Number(service.discount) : 0;
+          var finalPrice = basePrice;
+          if (discount > 0) {
+            finalPrice = basePrice - (basePrice * discount / 100);
+          }
+          var priceText = 'Hubungi';
+          if (basePrice > 0) {
+            priceText = 'Rp ' + finalPrice.toLocaleString('id-ID');
+            if (discount > 0) {
+              priceText += ' (Diskon ' + discount + '%)';
+            }
+          }
+          select.innerHTML += '<option value="' + (service._id || '') + '">' + (service.name || 'Service') + ' - ' + priceText + '</option>';
         });
       }
     });

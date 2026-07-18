@@ -39,9 +39,11 @@ def create_app(config_name="dev"):
     from flask import session
     @app.context_processor
     def inject_globals():
+        doc = mongo.db.settings.find_one({"key": "studio"}) or {}
         return {
             "now": datetime.now(),
             "session": session,
+            "studio_settings": doc
         }
         
     return app
@@ -49,4 +51,4 @@ def create_app(config_name="dev"):
 app = create_app()
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, use_reloader=False)

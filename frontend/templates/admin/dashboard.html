@@ -1,518 +1,969 @@
 {% extends "base.html" %}
-{% block title %}Admin Dashboard - InkMaster Studio{% endblock %}
-{% block meta_description %}Admin panel InkMaster Studio - Kelola artist, booking, pembayaran, gallery, dan jadwal studio.{% endblock %}
+{% block title %}Admin Dashboard - {{ studio_settings.get('studio_name') or 'InkMaster Studio' }}{% endblock %}
+{% block meta_description %}Admin panel {{ studio_settings.get('studio_name') or 'InkMaster Studio' }} - Kelola artist, booking, pembayaran, gallery, dan jadwal
+studio.{% endblock %}
 
 {% block extra_css %}
 <style>
-/* ═══════════════════════════════════════════════════
+  /* ═══════════════════════════════════════════════════
    ADMIN PANEL — Neo Brutalism (matching public theme)
    ═══════════════════════════════════════════════════ */
 
-/* Override body for admin full-screen layout */
-body { background: var(--gray); }
+  /* Override body for admin full-screen layout */
+  body {
+    background: var(--gray);
+  }
 
-/* ── Layout Shell ───────────────────────────────── */
-.adm-shell {
-  display: flex;
-  min-height: 100vh;
-}
+  /* ── Layout Shell ───────────────────────────────── */
+  .adm-shell {
+    display: flex;
+    min-height: 100vh;
+  }
 
-/* ── Sidebar ────────────────────────────────────── */
-.adm-sidebar {
-  width: 260px;
-  min-height: 100vh;
-  background: var(--dark);
-  border-right: var(--border);
-  display: flex;
-  flex-direction: column;
-  position: fixed;
-  top: 0; left: 0;
-  z-index: 400;
-  transition: transform .3s cubic-bezier(.4,0,.2,1);
-}
+  /* ── Sidebar ────────────────────────────────────── */
+  .adm-sidebar {
+    width: 260px;
+    min-height: 100vh;
+    background: var(--dark);
+    border-right: var(--border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 400;
+    transition: transform .3s cubic-bezier(.4, 0, .2, 1);
+    box-shadow: 4px 0 0 #000;
+  }
 
-.adm-brand {
-  padding: 20px;
-  border-bottom: 3px solid #222;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
+  .adm-brand {
+    padding: 20px;
+    border-bottom: 3px solid #222;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
 
-.adm-brand-icon {
-  width: 42px; height: 42px;
-  background: var(--primary);
-  border: 3px solid var(--white);
-  border-radius: var(--radius-sm);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 20px;
-  box-shadow: 3px 3px 0 var(--white);
-  flex-shrink: 0;
-}
+  .adm-brand-icon {
+    width: 42px;
+    height: 42px;
+    background: var(--primary);
+    border: 3px solid var(--white);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    box-shadow: 4px 4px 0 var(--white);
+    flex-shrink: 0;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .adm-brand:hover .adm-brand-icon {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--white);
+  }
 
-.adm-brand-name { color: var(--white); font-weight: 800; font-size: .95rem; font-family: var(--font-heading); }
-.adm-brand-sub  { color: var(--primary); font-size: .65rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+  .adm-brand-name {
+    color: var(--white);
+    font-weight: 800;
+    font-size: .95rem;
+    font-family: var(--font-heading);
+  }
 
-.adm-nav { flex: 1; padding: 12px; overflow-y: auto; }
-.adm-nav-label {
-  color: #555;
-  font-size: .62rem; font-weight: 700; letter-spacing: 2.5px;
-  text-transform: uppercase;
-  padding: 14px 8px 6px;
-}
+  .adm-brand-sub {
+    color: var(--primary);
+    font-size: .65rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
 
-.adm-nav-item {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 12px;
-  border-radius: var(--radius-sm);
-  color: #888;
-  font-size: .875rem; font-weight: 600;
-  cursor: pointer;
-  border: 2px solid transparent;
-  margin-bottom: 2px;
-  text-decoration: none;
-  transition: var(--transition);
-  font-family: var(--font-heading);
-}
+  .adm-nav {
+    flex: 1;
+    padding: 12px;
+    overflow-y: auto;
+  }
 
-.adm-nav-item i { width: 18px; text-align: center; flex-shrink: 0; }
-.adm-nav-item:hover { background: #1a1a1a; color: var(--primary); border-color: #333; }
+  .adm-nav-label {
+    color: #555;
+    font-size: .62rem;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    padding: 14px 8px 6px;
+  }
 
-.adm-nav-item.active {
-  background: var(--primary);
-  color: var(--dark);
-  border-color: var(--primary);
-  box-shadow: 3px 3px 0 rgba(255,210,63,.3);
-}
+  .adm-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    color: #888;
+    font-size: .875rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 2px solid transparent;
+    margin-bottom: 6px;
+    text-decoration: none;
+    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+    font-family: var(--font-heading);
+  }
+  .adm-nav-item i {
+    width: 22px;
+    text-align: center;
+    flex-shrink: 0;
+    font-size: 1.1em;
+  }
+  .adm-nav-item:hover {
+    background: #1a1a1a;
+    color: var(--primary);
+    border-color: var(--primary);
+    transform: translate(-3px, -3px);
+    box-shadow: 4px 4px 0 var(--primary);
+  }
+  .adm-nav-item.active {
+    background: var(--primary);
+    color: var(--dark);
+    border-color: #000;
+    box-shadow: 4px 4px 0 rgba(255, 210, 63, .6);
+    transform: translate(-2px, -2px);
+  }
 
-.adm-nav-badge {
-  margin-left: auto;
-  background: var(--secondary);
-  color: var(--white);
-  font-size: .62rem; font-weight: 800;
-  padding: 2px 7px;
-  border-radius: 99px;
-  border: 1.5px solid var(--white);
-  min-width: 20px; text-align: center;
-}
+  .adm-nav-badge {
+    margin-left: auto;
+    background: var(--secondary);
+    color: var(--white);
+    font-size: .62rem;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 99px;
+    border: 1.5px solid var(--white);
+    min-width: 20px;
+    text-align: center;
+  }
 
-.adm-sidebar-footer {
-  padding: 12px;
-  border-top: 3px solid #222;
-}
+  .adm-sidebar-footer {
+    padding: 12px;
+    border-top: 3px solid #222;
+  }
 
-.adm-logout {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 12px;
-  border-radius: var(--radius-sm);
-  color: var(--secondary);
-  font-size: .875rem; font-weight: 700;
-  text-decoration: none;
-  border: 2px solid transparent;
-  transition: var(--transition);
-  font-family: var(--font-heading);
-}
-.adm-logout:hover { background: rgba(231,76,60,.1); border-color: var(--secondary); box-shadow: 3px 3px 0 var(--secondary); }
+  .adm-logout {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    color: var(--secondary);
+    font-size: .875rem;
+    font-weight: 700;
+    text-decoration: none;
+    border: 2px solid transparent;
+    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+    font-family: var(--font-heading);
+  }
+  .adm-logout:hover {
+    background: rgba(231, 76, 60, .1);
+    border-color: var(--secondary);
+    color: var(--white);
+    transform: translate(-3px, -3px);
+    box-shadow: 4px 4px 0 var(--secondary);
+  }
 
-/* ── Main ───────────────────────────────────────── */
-.adm-main { margin-left: 260px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+  /* ── Main ───────────────────────────────────────── */
+  .adm-main {
+    margin-left: 260px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
 
-/* ── Topbar ─────────────────────────────────────── */
-.adm-topbar {
-  background: var(--white);
-  border-bottom: var(--border);
-  padding: 0 28px;
-  height: 70px;
-  display: flex; align-items: center; justify-content: space-between;
-  position: sticky; top: 0; z-index: 200;
-  box-shadow: 0 4px 0 var(--dark);
-}
+  /* ── Topbar ─────────────────────────────────────── */
+  .adm-topbar {
+    background: var(--white);
+    border-bottom: var(--border);
+    padding: 0 28px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    box-shadow: 0 4px 0 var(--dark);
+  }
 
-.adm-topbar-title { font-family: var(--font-heading); font-weight: 800; font-size: 1.1rem; color: var(--dark); }
-.adm-topbar-sub   { font-size: .78rem; color: var(--gray-600); }
-.adm-topbar-right { display: flex; align-items: center; gap: 12px; }
+  .adm-topbar-title {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--dark);
+  }
 
-.adm-live-badge {
-  display: flex; align-items: center; gap: 6px;
-  background: #E8FFF0;
-  border: 2px solid var(--success);
-  border-radius: 99px;
-  padding: 4px 10px;
-  font-size: .72rem; font-weight: 700;
-  color: var(--success);
-  box-shadow: 2px 2px 0 var(--success);
-}
-.adm-live-dot {
-  width: 7px; height: 7px;
-  background: var(--success);
-  border-radius: 50%;
-  animation: blink 1.5s infinite;
-}
-@keyframes blink { 0%,100% { opacity:1; } 50% { opacity:.3; } }
+  .adm-topbar-sub {
+    font-size: .78rem;
+    color: var(--gray-600);
+  }
 
-.adm-user-chip {
-  display: flex; align-items: center; gap: 8px;
-  background: var(--primary);
-  border: var(--border);
-  border-radius: var(--radius-sm);
-  padding: 6px 14px;
-  font-weight: 700; font-size: .82rem;
-  box-shadow: var(--shadow-sm);
-  font-family: var(--font-heading);
-}
+  .adm-topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
 
-/* ── Content Area ───────────────────────────────── */
-.adm-content { flex: 1; padding: 28px; }
+  .adm-live-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #E8FFF0;
+    border: 2px solid var(--success);
+    border-radius: 99px;
+    padding: 4px 10px;
+    font-size: .72rem;
+    font-weight: 700;
+    color: var(--success);
+    box-shadow: 2px 2px 0 var(--success);
+  }
 
-.adm-tab { display: none; }
-.adm-tab.active { display: block; }
+  .adm-live-dot {
+    width: 7px;
+    height: 7px;
+    background: var(--success);
+    border-radius: 50%;
+    animation: blink 1.5s infinite;
+  }
 
-/* ── Page Header ────────────────────────────────── */
-.adm-page-header {
-  display: flex; align-items: flex-start; justify-content: space-between;
-  flex-wrap: wrap; gap: 12px;
-  margin-bottom: 24px;
-  padding-bottom: 24px;
-  border-bottom: var(--border-thin);
-}
-.adm-page-title {
-  font-family: var(--font-heading);
-  font-size: 1.5rem; font-weight: 800;
-  color: var(--dark);
-  margin-bottom: 2px;
-}
-.adm-page-sub { color: var(--gray-600); font-size: .82rem; }
+  @keyframes blink {
 
-/* ── KPI Cards ──────────────────────────────────── */
-.adm-kpi-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 24px; }
+    0%,
+    100% {
+      opacity: 1;
+    }
 
-.adm-kpi {
-  background: var(--white);
-  border: var(--border);
-  border-radius: var(--radius);
-  padding: 20px;
-  display: flex; align-items: center; gap: 16px;
-  box-shadow: var(--shadow-sm);
-  transition: var(--transition);
-}
-.adm-kpi:hover { transform: var(--hover-move); box-shadow: var(--shadow); }
+    50% {
+      opacity: .3;
+    }
+  }
 
-.adm-kpi-icon {
-  width: 52px; height: 52px;
-  border-radius: var(--radius-sm);
-  border: var(--border-thin);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 22px;
-  flex-shrink: 0;
-  box-shadow: var(--shadow-sm);
-}
-.adm-kpi-icon.yellow { background: var(--primary); color: var(--dark); }
-.adm-kpi-icon.green  { background: #C6F6D5; color: #276749; }
-.adm-kpi-icon.blue   { background: #BEE3F8; color: #2C5282; }
-.adm-kpi-icon.red    { background: #FED7D7; color: #822727; }
+  .adm-user-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--primary);
+    border: var(--border);
+    border-radius: var(--radius-sm);
+    padding: 6px 14px;
+    font-weight: 700;
+    font-size: .82rem;
+    box-shadow: var(--shadow-sm);
+    font-family: var(--font-heading);
+  }
 
-.adm-kpi-val { color: var(--dark); font-size: 1.7rem; font-weight: 900; line-height: 1; margin-bottom: 4px; font-family: var(--font-heading); }
-.adm-kpi-lbl { color: var(--gray-600); font-size: .72rem; font-weight: 600; letter-spacing: .3px; }
+  /* ── Content Area ───────────────────────────────── */
+  .adm-content {
+    flex: 1;
+    padding: 28px;
+  }
 
-/* ── Cards ──────────────────────────────────────── */
-.adm-card {
-  background: var(--white);
-  border: var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
-  margin-bottom: 20px;
-}
+  .adm-tab {
+    display: none;
+  }
 
-.adm-card-header {
-  padding: 16px 20px;
-  border-bottom: var(--border-thin);
-  display: flex; align-items: center; justify-content: space-between;
-  background: var(--gray);
-}
-.adm-card-title { font-weight: 800; font-size: .95rem; font-family: var(--font-heading); color: var(--dark); }
-.adm-card-sub   { color: var(--gray-600); font-size: .78rem; margin-top: 2px; }
-.adm-card-body  { padding: 20px; }
+  .adm-tab.active {
+    display: block;
+  }
 
-/* ── Tables ─────────────────────────────────────── */
-.adm-table-wrap { overflow-x: auto; }
+  /* ── Page Header ────────────────────────────────── */
+  .adm-page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding-bottom: 24px;
+    border-bottom: var(--border-thin);
+  }
 
-.adm-table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  .adm-page-title {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--dark);
+    margin-bottom: 2px;
+  }
 
-.adm-table thead th {
-  background: var(--dark);
-  color: var(--white);
-  font-size: .7rem; font-weight: 700;
-  letter-spacing: 1.5px; text-transform: uppercase;
-  padding: 12px 16px;
-  text-align: left;
-  white-space: nowrap;
-}
+  .adm-page-sub {
+    color: var(--gray-600);
+    font-size: .82rem;
+  }
 
-.adm-table tbody tr {
-  border-bottom: 2px solid var(--gray-200);
-  transition: background .15s;
-}
-.adm-table tbody tr:hover { background: var(--gray); }
-.adm-table tbody td { padding: 13px 16px; color: var(--dark); vertical-align: middle; }
-.adm-table .bold { font-weight: 800; font-family: var(--font-heading); }
+  /* ── KPI Cards ──────────────────────────────────── */
+  .adm-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
 
-/* ── Badges ─────────────────────────────────────── */
-.adm-badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 3px 10px;
-  border-radius: 4px;
-  font-size: .7rem; font-weight: 800;
-  letter-spacing: .5px; text-transform: uppercase;
-  border: 2px solid;
-}
-.adm-badge.pending   { background: #FFF9E6; color: #7D5A00; border-color: #F39C12; }
-.adm-badge.approved  { background: #EBF8FF; color: #2C5282; border-color: var(--info); }
-.adm-badge.confirmed { background: #E6FFED; color: #276749; border-color: var(--success); }
-.adm-badge.completed { background: #E9D8FD; color: #553C9A; border-color: #805AD5; }
-.adm-badge.cancelled { background: #FFF5F5; color: #822727; border-color: var(--error); }
-.adm-badge.uploaded  { background: #FFF9E6; color: #7D5A00; border-color: #F39C12; }
-.adm-badge.active    { background: #E6FFED; color: #276749; border-color: var(--success); }
-.adm-badge.inactive  { background: var(--gray); color: var(--gray-600); border-color: var(--gray-300); }
+  .adm-kpi {
+    background: var(--white);
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+  }
 
-/* ── Artist Cards ───────────────────────────────── */
-.adm-artist-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(200px,1fr)); gap: 16px; }
+  .adm-kpi:hover {
+    transform: var(--hover-move);
+    box-shadow: var(--shadow);
+  }
 
-.adm-artist-card {
-  background: var(--white);
-  border: var(--border);
-  border-radius: var(--radius);
-  padding: 20px;
-  text-align: center;
-  box-shadow: var(--shadow-sm);
-  transition: var(--transition);
-}
-.adm-artist-card:hover { transform: var(--hover-move); box-shadow: var(--shadow); }
+  .adm-kpi-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-sm);
+    border: var(--border-thin);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+    box-shadow: var(--shadow-sm);
+  }
 
-.adm-artist-avatar {
-  width: 68px; height: 68px;
-  background: var(--primary);
-  border: var(--border);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 26px;
-  margin: 0 auto 12px;
-  box-shadow: var(--shadow-sm);
-}
-.adm-artist-name { font-weight: 800; margin-bottom: 4px; font-family: var(--font-heading); font-size: .9rem; }
-.adm-artist-spec { color: var(--gray-600); font-size: .78rem; margin-bottom: 4px; }
-.adm-artist-exp  { color: var(--gray-600); font-size: .72rem; margin-bottom: 12px; }
+  .adm-kpi-icon.yellow {
+    background: var(--primary);
+    color: var(--dark);
+  }
 
-.adm-artist-actions { display: flex; gap: 6px; justify-content: center; margin-top: 10px; }
+  .adm-kpi-icon.green {
+    background: #C6F6D5;
+    color: #276749;
+  }
 
-/* ── Gallery Grid ───────────────────────────────── */
-.adm-gallery-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(180px,1fr)); gap: 14px; }
+  .adm-kpi-icon.blue {
+    background: #BEE3F8;
+    color: #2C5282;
+  }
 
-.adm-gallery-item {
-  background: var(--white);
-  border: var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  transition: var(--transition);
-  position: relative;
-}
-.adm-gallery-item:hover { transform: var(--hover-move); box-shadow: var(--shadow); }
-.adm-gallery-item:hover .adm-gallery-overlay { opacity: 1; }
+  .adm-kpi-icon.red {
+    background: #FED7D7;
+    color: #822727;
+  }
 
-.adm-gallery-thumb {
-  height: 140px;
-  background: var(--gray);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 2.5rem; color: var(--gray-300);
-  overflow: hidden;
-}
-.adm-gallery-thumb img { width:100%; height:100%; object-fit:cover; }
+  .adm-kpi-val {
+    color: var(--dark);
+    font-size: 1.7rem;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 4px;
+    font-family: var(--font-heading);
+  }
 
-.adm-gallery-overlay {
-  position: absolute; inset: 0;
-  background: rgba(17,17,17,.75);
-  display: flex; align-items: center; justify-content: center;
-  gap: 8px; opacity: 0;
-  transition: opacity .2s;
-}
-.adm-gallery-info { padding: 10px 12px; border-top: 2px solid var(--gray-200); }
-.adm-gallery-title { font-weight: 800; font-size: .82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.adm-gallery-cat   { color: var(--gray-600); font-size: .7rem; }
+  .adm-kpi-lbl {
+    color: var(--gray-600);
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .3px;
+  }
 
-/* ── Filter Bar ─────────────────────────────────── */
-.adm-filter-bar {
-  display: flex; align-items: center; gap: 10px;
-  padding: 12px 20px;
-  background: var(--gray);
-  border-bottom: var(--border-thin);
-}
+  /* ── Cards ──────────────────────────────────────── */
+  .adm-card {
+    background: var(--white);
+    border: var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
 
-/* ── Empty State ────────────────────────────────── */
-.adm-empty {
-  text-align: center; padding: 60px 20px;
-  color: var(--gray-300);
-}
-.adm-empty i { font-size: 3rem; display: block; margin-bottom: 12px; }
-.adm-empty p { color: var(--gray-600); font-size: .9rem; }
+  .adm-card-header {
+    padding: 16px 20px;
+    border-bottom: var(--border-thin);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--gray);
+  }
 
-/* ── Settings ───────────────────────────────────── */
-.adm-settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.adm-settings-card {
-  background: var(--white);
-  border: var(--border);
-  border-radius: var(--radius);
-  padding: 24px;
-  box-shadow: var(--shadow-sm);
-}
-.adm-settings-section-title {
-  display: flex; align-items: center; gap: 8px;
-  font-family: var(--font-heading);
-  font-weight: 800; font-size: .85rem;
-  background: var(--primary);
-  border: var(--border-thin);
-  border-radius: var(--radius-sm);
-  padding: 6px 12px;
-  margin-bottom: 16px;
-  box-shadow: 3px 3px 0 var(--dark);
-}
+  .adm-card-title {
+    font-weight: 800;
+    font-size: .95rem;
+    font-family: var(--font-heading);
+    color: var(--dark);
+  }
 
-/* ── Form inputs (admin flavour) ────────────────── */
-.adm-input, .adm-select, .adm-textarea {
-  width: 100%;
-  background: var(--white);
-  border: var(--border-thin);
-  border-radius: var(--radius-sm);
-  color: var(--dark);
-  font-size: .875rem;
-  padding: 10px 14px;
-  transition: var(--transition);
-  font-family: var(--font-body);
-  box-shadow: 2px 2px 0 var(--dark);
-}
-.adm-input:focus, .adm-select:focus, .adm-textarea:focus {
-  outline: none;
-  border-color: var(--dark);
-  box-shadow: 4px 4px 0 var(--dark);
-}
-.adm-textarea { resize: vertical; min-height: 80px; }
-.adm-label {
-  display: block;
-  color: var(--dark);
-  font-size: .75rem; font-weight: 700;
-  letter-spacing: .5px; text-transform: uppercase;
-  margin-bottom: 6px;
-  font-family: var(--font-heading);
-}
-.adm-form-group { margin-bottom: 14px; }
-.adm-grid-2 { display: grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .adm-card-sub {
+    color: var(--gray-600);
+    font-size: .78rem;
+    margin-top: 2px;
+  }
 
-/* ── Modal ──────────────────────────────────────── */
-.adm-modal-overlay {
-  display: none; position: fixed; inset: 0;
-  background: rgba(17,17,17,.6);
-  z-index: var(--z-modal);
-  align-items: center; justify-content: center;
-  padding: 16px;
-}
-.adm-modal-overlay.open { display: flex; }
+  .adm-card-body {
+    padding: 20px;
+  }
 
-.adm-modal {
-  background: var(--white);
-  border: var(--border);
-  border-radius: var(--radius);
-  width: 100%; max-width: 540px;
-  max-height: 92vh; overflow-y: auto;
-  box-shadow: 8px 8px 0 var(--dark);
-  animation: modalIn .22s ease;
-}
-@keyframes modalIn { from { opacity:0; transform:scale(.95) translateY(10px); } }
+  /* ── Tables ─────────────────────────────────────── */
+  .adm-table-wrap {
+    overflow-x: auto;
+  }
 
-.adm-modal-header {
-  padding: 18px 22px;
-  border-bottom: var(--border-thin);
-  background: var(--primary);
-  display: flex; align-items: center; justify-content: space-between;
-}
-.adm-modal-title { font-weight: 800; font-size: 1rem; font-family: var(--font-heading); color: var(--dark); }
-.adm-modal-close {
-  background: var(--white); border: var(--border-thin);
-  border-radius: var(--radius-sm);
-  width: 30px; height: 30px;
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
-  font-size: 1rem; font-weight: 700;
-  box-shadow: 2px 2px 0 var(--dark);
-  transition: var(--transition);
-}
-.adm-modal-close:hover { background: var(--secondary); color: var(--white); }
+  .adm-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .85rem;
+  }
 
-.adm-modal-body   { padding: 22px; }
-.adm-modal-footer {
-  padding: 14px 22px;
-  border-top: var(--border-thin);
-  background: var(--gray);
-  display: flex; justify-content: flex-end; gap: 10px;
-}
+  .adm-table thead th {
+    background: var(--dark);
+    color: var(--white);
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 12px 16px;
+    text-align: left;
+    white-space: nowrap;
+  }
 
-/* ── Upload Zone ────────────────────────────────── */
-.adm-upload-zone {
-  border: 3px dashed var(--gray-300);
-  border-radius: var(--radius-sm);
-  padding: 24px;
-  text-align: center;
-  cursor: pointer;
-  transition: var(--transition);
-  background: var(--gray);
-}
-.adm-upload-zone:hover { border-color: var(--dark); background: var(--white); box-shadow: var(--shadow-sm); }
-.adm-upload-zone i { font-size: 2rem; color: var(--gray-600); display: block; margin-bottom: 6px; }
-.adm-upload-zone p { color: var(--gray-600); font-size: .85rem; margin: 0; }
+  .adm-table tbody tr {
+    border-bottom: 2px solid var(--gray-200);
+    transition: background .15s;
+  }
 
-/* ── Toast ──────────────────────────────────────── */
-.adm-toast {
-  position: fixed; bottom: 24px; right: 24px;
-  background: var(--dark);
-  border: var(--border-thin);
-  border-radius: var(--radius-sm);
-  padding: 12px 18px;
-  color: var(--white);
-  font-size: .85rem; font-weight: 600;
-  z-index: 9999;
-  display: flex; align-items: center; gap: 10px;
-  box-shadow: 4px 4px 0 rgba(0,0,0,.3);
-  animation: toastIn .3s ease;
-  font-family: var(--font-heading);
-}
-.adm-toast.success { border-color: var(--success); }
-.adm-toast.error   { border-color: var(--secondary); }
-@keyframes toastIn { from { opacity:0; transform:translateY(16px); } }
+  .adm-table tbody tr:hover {
+    background: var(--gray);
+  }
 
-/* ── Mobile Toggle ──────────────────────────────── */
-.adm-toggle {
-  display: none;
-  position: fixed; top: 16px; left: 16px; z-index: 500;
-  background: var(--primary);
-  border: var(--border);
-  border-radius: var(--radius-sm);
-  padding: 8px 10px;
-  cursor: pointer;
-  font-size: .9rem;
-  box-shadow: var(--shadow-sm);
-}
+  .adm-table tbody td {
+    padding: 13px 16px;
+    color: var(--dark);
+    vertical-align: middle;
+  }
 
-@media (max-width: 900px) {
-  .adm-sidebar { transform: translateX(-100%); }
-  .adm-sidebar.open { transform: translateX(0); box-shadow: 8px 0 32px rgba(0,0,0,.4); }
-  .adm-main { margin-left: 0; }
-  .adm-toggle { display: block; }
-  .adm-kpi-grid { grid-template-columns: 1fr 1fr; }
-  .adm-settings-grid { grid-template-columns: 1fr; }
-  .adm-grid-2 { grid-template-columns: 1fr; }
-}
-@media (max-width: 540px) {
-  .adm-kpi-grid { grid-template-columns: 1fr; }
-  .adm-content { padding: 16px; }
-}
+  .adm-table .bold {
+    font-weight: 800;
+    font-family: var(--font-heading);
+  }
+
+  /* ── Badges ─────────────────────────────────────── */
+  .adm-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: .7rem;
+    font-weight: 800;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    border: 2px solid;
+  }
+
+  .adm-badge.pending {
+    background: #FFF9E6;
+    color: #7D5A00;
+    border-color: #F39C12;
+  }
+
+  .adm-badge.approved {
+    background: #EBF8FF;
+    color: #2C5282;
+    border-color: var(--info);
+  }
+
+  .adm-badge.confirmed {
+    background: #E6FFED;
+    color: #276749;
+    border-color: var(--success);
+  }
+
+  .adm-badge.completed {
+    background: #E9D8FD;
+    color: #553C9A;
+    border-color: #805AD5;
+  }
+
+  .adm-badge.cancelled {
+    background: #FFF5F5;
+    color: #822727;
+    border-color: var(--error);
+  }
+
+  .adm-badge.uploaded {
+    background: #FFF9E6;
+    color: #7D5A00;
+    border-color: #F39C12;
+  }
+
+  .adm-badge.active {
+    background: #E6FFED;
+    color: #276749;
+    border-color: var(--success);
+  }
+
+  .adm-badge.inactive {
+    background: var(--gray);
+    color: var(--gray-600);
+    border-color: var(--gray-300);
+  }
+
+  /* ── Artist Cards ───────────────────────────────── */
+  .adm-artist-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+  }
+
+  .adm-artist-card {
+    background: var(--white);
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+  }
+
+  .adm-artist-card:hover {
+    transform: var(--hover-move);
+    box-shadow: var(--shadow);
+  }
+
+  .adm-artist-avatar {
+    width: 68px;
+    height: 68px;
+    background: var(--primary);
+    border: var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    margin: 0 auto 12px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .adm-artist-name {
+    font-weight: 800;
+    margin-bottom: 4px;
+    font-family: var(--font-heading);
+    font-size: .9rem;
+  }
+
+  .adm-artist-spec {
+    color: var(--gray-600);
+    font-size: .78rem;
+    margin-bottom: 4px;
+  }
+
+  .adm-artist-exp {
+    color: var(--gray-600);
+    font-size: .72rem;
+    margin-bottom: 12px;
+  }
+
+  .adm-artist-actions {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-top: 10px;
+  }
+
+  /* ── Gallery Grid ───────────────────────────────── */
+  .adm-gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 14px;
+  }
+
+  .adm-gallery-item {
+    background: var(--white);
+    border: var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+    position: relative;
+  }
+
+  .adm-gallery-item:hover {
+    transform: var(--hover-move);
+    box-shadow: var(--shadow);
+  }
+
+  .adm-gallery-item:hover .adm-gallery-overlay {
+    opacity: 1;
+  }
+
+  .adm-gallery-thumb {
+    height: 140px;
+    background: var(--gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    color: var(--gray-300);
+    overflow: hidden;
+  }
+
+  .adm-gallery-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .adm-gallery-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(17, 17, 17, .75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity .2s;
+  }
+
+  .adm-gallery-info {
+    padding: 10px 12px;
+    border-top: 2px solid var(--gray-200);
+  }
+
+  .adm-gallery-title {
+    font-weight: 800;
+    font-size: .82rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .adm-gallery-cat {
+    color: var(--gray-600);
+    font-size: .7rem;
+  }
+
+  /* ── Filter Bar ─────────────────────────────────── */
+  .adm-filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    background: var(--gray);
+    border-bottom: var(--border-thin);
+  }
+
+  /* ── Empty State ────────────────────────────────── */
+  .adm-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--gray-300);
+  }
+
+  .adm-empty i {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 12px;
+  }
+
+  .adm-empty p {
+    color: var(--gray-600);
+    font-size: .9rem;
+  }
+
+  /* ── Settings ───────────────────────────────────── */
+  .adm-settings-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .adm-settings-card {
+    background: var(--white);
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .adm-settings-section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: .85rem;
+    background: var(--primary);
+    border: var(--border-thin);
+    border-radius: var(--radius-sm);
+    padding: 6px 12px;
+    margin-bottom: 16px;
+    box-shadow: 3px 3px 0 var(--dark);
+  }
+
+  /* ── Form inputs (admin flavour) ────────────────── */
+  .adm-input,
+  .adm-select,
+  .adm-textarea {
+    width: 100%;
+    background: var(--white);
+    border: var(--border-thin);
+    border-radius: var(--radius-sm);
+    color: var(--dark);
+    font-size: .875rem;
+    padding: 10px 14px;
+    transition: var(--transition);
+    font-family: var(--font-body);
+    box-shadow: 2px 2px 0 var(--dark);
+  }
+
+  .adm-input:focus,
+  .adm-select:focus,
+  .adm-textarea:focus {
+    outline: none;
+    border-color: var(--dark);
+    box-shadow: 4px 4px 0 var(--dark);
+  }
+
+  .adm-textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  .adm-label {
+    display: block;
+    color: var(--dark);
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    font-family: var(--font-heading);
+  }
+
+  .adm-form-group {
+    margin-bottom: 14px;
+  }
+
+  .adm-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  /* ── Modal ──────────────────────────────────────── */
+  .adm-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(17, 17, 17, .6);
+    z-index: var(--z-modal);
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  .adm-modal-overlay.open {
+    display: flex;
+  }
+
+  .adm-modal {
+    background: var(--white);
+    border: var(--border);
+    border-radius: var(--radius);
+    width: 100%;
+    max-width: 540px;
+    max-height: 92vh;
+    overflow-y: auto;
+    box-shadow: 8px 8px 0 var(--dark);
+    animation: modalIn .22s ease;
+  }
+
+  @keyframes modalIn {
+    from {
+      opacity: 0;
+      transform: scale(.95) translateY(10px);
+    }
+  }
+
+  .adm-modal-header {
+    padding: 18px 22px;
+    border-bottom: var(--border-thin);
+    background: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .adm-modal-title {
+    font-weight: 800;
+    font-size: 1rem;
+    font-family: var(--font-heading);
+    color: var(--dark);
+  }
+
+  .adm-modal-close {
+    background: var(--white);
+    border: var(--border-thin);
+    border-radius: var(--radius-sm);
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: 700;
+    box-shadow: 2px 2px 0 var(--dark);
+    transition: var(--transition);
+  }
+
+  .adm-modal-close:hover {
+    background: var(--secondary);
+    color: var(--white);
+  }
+
+  .adm-modal-body {
+    padding: 22px;
+  }
+
+  .adm-modal-footer {
+    padding: 14px 22px;
+    border-top: var(--border-thin);
+    background: var(--gray);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  /* ── Upload Zone ────────────────────────────────── */
+  .adm-upload-zone {
+    border: 3px dashed var(--gray-300);
+    border-radius: var(--radius-sm);
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+    background: var(--gray);
+  }
+
+  .adm-upload-zone:hover {
+    border-color: var(--dark);
+    background: var(--white);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .adm-upload-zone i {
+    font-size: 2rem;
+    color: var(--gray-600);
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .adm-upload-zone p {
+    color: var(--gray-600);
+    font-size: .85rem;
+    margin: 0;
+  }
+
+  /* ── Toast ──────────────────────────────────────── */
+  .adm-toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--dark);
+    border: var(--border-thin);
+    border-radius: var(--radius-sm);
+    padding: 12px 18px;
+    color: var(--white);
+    font-size: .85rem;
+    font-weight: 600;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, .3);
+    animation: toastIn .3s ease;
+    font-family: var(--font-heading);
+  }
+
+  .adm-toast.success {
+    border-color: var(--success);
+  }
+
+  .adm-toast.error {
+    border-color: var(--secondary);
+  }
+
+  @keyframes toastIn {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+  }
+
+  /* ── Mobile Toggle ──────────────────────────────── */
+  .adm-toggle {
+    display: none;
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 500;
+    background: var(--primary);
+    border: var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    cursor: pointer;
+    font-size: .9rem;
+    box-shadow: var(--shadow-sm);
+  }
+
+  @media (max-width: 900px) {
+    .adm-sidebar {
+      transform: translateX(-100%);
+    }
+
+    .adm-sidebar.open {
+      transform: translateX(0);
+      box-shadow: 8px 0 32px rgba(0, 0, 0, .4);
+    }
+
+    .adm-main {
+      margin-left: 0;
+    }
+
+    .adm-toggle {
+      display: block;
+    }
+
+    .adm-kpi-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .adm-settings-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .adm-grid-2 {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 540px) {
+    .adm-kpi-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .adm-content {
+      padding: 16px;
+    }
+  }
 </style>
 {% endblock %}
 
@@ -528,7 +979,7 @@ body { background: var(--gray); }
     <div class="adm-brand">
       <div class="adm-brand-icon">🖊</div>
       <div>
-        <div class="adm-brand-name">InkMaster</div>
+        <div class="adm-brand-name">{{ studio_settings.get('studio_name') or 'InkMaster Studio' }}</div>
         <div class="adm-brand-sub">Admin Panel</div>
       </div>
     </div>
@@ -586,7 +1037,9 @@ body { background: var(--gray); }
         <div class="adm-topbar-sub" id="current-date"></div>
       </div>
       <div class="adm-topbar-right">
-        <div class="adm-live-badge"><div class="adm-live-dot"></div> Live</div>
+        <div class="adm-live-badge">
+          <div class="adm-live-dot"></div> Live
+        </div>
         <div class="adm-user-chip">
           <i class="fas fa-shield-alt"></i>
           {{ session.get('fullname', 'Admin') }}
@@ -609,19 +1062,31 @@ body { background: var(--gray); }
         <div class="adm-kpi-grid">
           <div class="adm-kpi">
             <div class="adm-kpi-icon yellow"><i class="fas fa-calendar-check"></i></div>
-            <div><div class="adm-kpi-val" id="stat-total">—</div><div class="adm-kpi-lbl">Total Booking</div></div>
+            <div>
+              <div class="adm-kpi-val" id="stat-total">—</div>
+              <div class="adm-kpi-lbl">Total Booking</div>
+            </div>
           </div>
           <div class="adm-kpi">
             <div class="adm-kpi-icon green"><i class="fas fa-money-bill-wave"></i></div>
-            <div><div class="adm-kpi-val" id="stat-revenue" style="font-size:1.2rem;">—</div><div class="adm-kpi-lbl">Pendapatan</div></div>
+            <div>
+              <div class="adm-kpi-val" id="stat-revenue" style="font-size:1.2rem;">—</div>
+              <div class="adm-kpi-lbl">Pendapatan</div>
+            </div>
           </div>
           <div class="adm-kpi">
             <div class="adm-kpi-icon blue"><i class="fas fa-user-ninja"></i></div>
-            <div><div class="adm-kpi-val" id="stat-artists">—</div><div class="adm-kpi-lbl">Artist Aktif</div></div>
+            <div>
+              <div class="adm-kpi-val" id="stat-artists">—</div>
+              <div class="adm-kpi-lbl">Artist Aktif</div>
+            </div>
           </div>
           <div class="adm-kpi">
             <div class="adm-kpi-icon red"><i class="fas fa-hourglass-half"></i></div>
-            <div><div class="adm-kpi-val" id="stat-waiting">—</div><div class="adm-kpi-lbl">Waiting Payment</div></div>
+            <div>
+              <div class="adm-kpi-val" id="stat-waiting">—</div>
+              <div class="adm-kpi-lbl">Waiting Payment</div>
+            </div>
           </div>
         </div>
 
@@ -631,12 +1096,15 @@ body { background: var(--gray); }
               <div class="adm-card-title">Booking Hari Ini</div>
               <div class="adm-card-sub">Jadwal yang sedang berlangsung</div>
             </div>
-            <a class="btn btn-dark btn-sm" onclick="switchTab(document.querySelector('[data-tab=bookings]'),'bookings')">
+            <a class="btn btn-dark btn-sm"
+              onclick="switchTab(document.querySelector('[data-tab=bookings]'),'bookings')">
               Semua Booking <i class="fas fa-arrow-right"></i>
             </a>
           </div>
           <div id="today-bookings" style="padding:20px;">
-            <div class="adm-empty"><i class="fas fa-spinner fa-spin"></i><p>Memuat data...</p></div>
+            <div class="adm-empty"><i class="fas fa-spinner fa-spin"></i>
+              <p>Memuat data...</p>
+            </div>
           </div>
         </div>
       </div>
@@ -666,9 +1134,22 @@ body { background: var(--gray); }
           <div class="adm-table-wrap">
             <table class="adm-table">
               <thead>
-                <tr><th>Kode</th><th>Customer</th><th>Artist</th><th>Service</th><th>Tanggal</th><th>Jam</th><th>Status</th><th>Aksi</th></tr>
+                <tr>
+                  <th>Kode</th>
+                  <th>Customer</th>
+                  <th>Artist</th>
+                  <th>Service</th>
+                  <th>Tanggal</th>
+                  <th>Jam</th>
+                  <th>Status</th>
+                  <th>Aksi</th>
+                </tr>
               </thead>
-              <tbody id="bookings-tbody"><tr><td colspan="8" style="text-align:center;padding:32px;color:var(--gray-600);">Memuat...</td></tr></tbody>
+              <tbody id="bookings-tbody">
+                <tr>
+                  <td colspan="8" style="text-align:center;padding:32px;color:var(--gray-600);">Memuat...</td>
+                </tr>
+              </tbody>
             </table>
           </div>
         </div>
@@ -681,12 +1162,14 @@ body { background: var(--gray); }
             <div class="adm-page-title">🎨 Manage Artists</div>
             <div class="adm-page-sub">Tambah dan kelola artist studio Anda</div>
           </div>
-          <button class="btn btn-gold" onclick="openModal('modal-artist')">
+          <button class="btn btn-gold" onclick="openAddArtist()">
             <i class="fas fa-plus"></i> Tambah Artist
           </button>
         </div>
         <div class="adm-artist-grid" id="artists-grid">
-          <div class="adm-empty" style="grid-column:1/-1;"><i class="fas fa-spinner fa-spin"></i><p>Memuat...</p></div>
+          <div class="adm-empty" style="grid-column:1/-1;"><i class="fas fa-spinner fa-spin"></i>
+            <p>Memuat...</p>
+          </div>
         </div>
       </div>
 
@@ -697,15 +1180,28 @@ body { background: var(--gray); }
             <div class="adm-page-title">🏷️ Manage Services</div>
             <div class="adm-page-sub">Daftar layanan yang ditawarkan studio</div>
           </div>
-          <button class="btn btn-gold" onclick="openModal('modal-service')">
+          <button class="btn btn-gold" onclick="openAddService()">
             <i class="fas fa-plus"></i> Tambah Service
           </button>
         </div>
         <div class="adm-card">
           <div class="adm-table-wrap">
             <table class="adm-table">
-              <thead><tr><th>Nama Service</th><th>Harga</th><th>Durasi</th><th>Deskripsi</th><th style="width:110px;">Aksi</th></tr></thead>
-              <tbody id="services-tbody"><tr><td colspan="5" style="text-align:center;padding:32px;color:var(--gray-600);">Memuat...</td></tr></tbody>
+              <thead>
+                <tr>
+                  <th>Nama Service</th>
+                  <th>Harga</th>
+                  <th>Diskon</th>
+                  <th>Durasi</th>
+                  <th>Deskripsi</th>
+                  <th style="width:110px;">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="services-tbody">
+                <tr>
+                  <td colspan="5" style="text-align:center;padding:32px;color:var(--gray-600);">Memuat...</td>
+                </tr>
+              </tbody>
             </table>
           </div>
         </div>
@@ -723,7 +1219,9 @@ body { background: var(--gray); }
           </button>
         </div>
         <div class="adm-gallery-grid" id="gallery-grid">
-          <div class="adm-empty" style="grid-column:1/-1;"><i class="fas fa-spinner fa-spin"></i><p>Memuat...</p></div>
+          <div class="adm-empty" style="grid-column:1/-1;"><i class="fas fa-spinner fa-spin"></i>
+            <p>Memuat...</p>
+          </div>
         </div>
       </div>
 
@@ -738,8 +1236,21 @@ body { background: var(--gray); }
         <div class="adm-card">
           <div class="adm-table-wrap">
             <table class="adm-table">
-              <thead><tr><th>Booking</th><th>Customer</th><th>Jumlah</th><th>Bukti</th><th>Status</th><th>Aksi</th></tr></thead>
-              <tbody id="payments-tbody"><tr><td colspan="6" style="text-align:center;padding:32px;color:var(--gray-600);">Memuat...</td></tr></tbody>
+              <thead>
+                <tr>
+                  <th>Booking</th>
+                  <th>Customer</th>
+                  <th>Jumlah</th>
+                  <th>Bukti</th>
+                  <th>Status</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="payments-tbody">
+                <tr>
+                  <td colspan="6" style="text-align:center;padding:32px;color:var(--gray-600);">Memuat...</td>
+                </tr>
+              </tbody>
             </table>
           </div>
         </div>
@@ -756,8 +1267,19 @@ body { background: var(--gray); }
         <div class="adm-card">
           <div class="adm-table-wrap">
             <table class="adm-table">
-              <thead><tr><th>Nama</th><th>Email</th><th>No. WhatsApp</th><th>Bergabung</th></tr></thead>
-              <tbody id="customers-tbody"><tr><td colspan="4" style="text-align:center;padding:32px;color:var(--gray-600);">Memuat...</td></tr></tbody>
+              <thead>
+                <tr>
+                  <th>Nama</th>
+                  <th>Email</th>
+                  <th>No. WhatsApp</th>
+                  <th>Bergabung</th>
+                </tr>
+              </thead>
+              <tbody id="customers-tbody">
+                <tr>
+                  <td colspan="4" style="text-align:center;padding:32px;color:var(--gray-600);">Memuat...</td>
+                </tr>
+              </tbody>
             </table>
           </div>
         </div>
@@ -777,28 +1299,41 @@ body { background: var(--gray); }
         <div class="adm-settings-grid">
           <div class="adm-settings-card">
             <div class="adm-settings-section-title"><i class="fas fa-store"></i> Informasi Studio</div>
-            <div class="adm-form-group"><label class="adm-label">Nama Studio</label><input id="s-name" class="adm-input" placeholder="InkMaster Studio"></div>
-            <div class="adm-form-group"><label class="adm-label">Tagline</label><input id="s-tagline" class="adm-input" placeholder="Professional Tattoo Art"></div>
-            <div class="adm-form-group"><label class="adm-label">Alamat</label><textarea id="s-address" class="adm-textarea" placeholder="Jl. Contoh No. 1, Jakarta"></textarea></div>
-            <div class="adm-form-group"><label class="adm-label">Jam Operasional</label><input id="s-hours" class="adm-input" placeholder="Senin–Sabtu, 09:00–20:00"></div>
+            <div class="adm-form-group"><label class="adm-label">Nama Studio</label><input id="s-name" class="adm-input"
+                placeholder="InkMaster Studio"></div>
+            <div class="adm-form-group"><label class="adm-label">Tagline</label><input id="s-tagline" class="adm-input"
+                placeholder="Professional Tattoo Art"></div>
+            <div class="adm-form-group"><label class="adm-label">Alamat</label><textarea id="s-address"
+                class="adm-textarea" placeholder="Jl. Contoh No. 1, Jakarta"></textarea></div>
+            <div class="adm-form-group"><label class="adm-label">Jam Operasional</label><input id="s-hours"
+                class="adm-input" placeholder="Senin–Sabtu, 09:00–20:00"></div>
           </div>
           <div class="adm-settings-card">
             <div class="adm-settings-section-title"><i class="fas fa-phone"></i> Kontak & Sosial Media</div>
-            <div class="adm-form-group"><label class="adm-label">No. WhatsApp</label><input id="s-whatsapp" class="adm-input" placeholder="6281234567890"></div>
-            <div class="adm-form-group"><label class="adm-label">Email</label><input type="email" id="s-email" class="adm-input" placeholder="hello@inkmaster.id"></div>
-            <div class="adm-form-group"><label class="adm-label">Instagram</label><input id="s-instagram" class="adm-input" placeholder="@inkmaster.studio"></div>
-            <div class="adm-form-group"><label class="adm-label">Facebook</label><input id="s-facebook" class="adm-input" placeholder="InkMaster Studio"></div>
+            <div class="adm-form-group"><label class="adm-label">No. WhatsApp</label><input id="s-whatsapp"
+                class="adm-input" placeholder="6281234567890"></div>
+            <div class="adm-form-group"><label class="adm-label">Email</label><input type="email" id="s-email"
+                class="adm-input" placeholder="hello@inkmaster.id"></div>
+            <div class="adm-form-group"><label class="adm-label">Instagram</label><input id="s-instagram"
+                class="adm-input" placeholder="@inkmaster.studio"></div>
+            <div class="adm-form-group"><label class="adm-label">Facebook</label><input id="s-facebook"
+                class="adm-input" placeholder="InkMaster Studio"></div>
           </div>
           <div class="adm-settings-card">
             <div class="adm-settings-section-title"><i class="fas fa-calendar-alt"></i> Pengaturan Booking</div>
-            <div class="adm-form-group"><label class="adm-label">Slot Waktu (pisah koma)</label><input id="s-slots" class="adm-input" placeholder="08:00,10:00,13:00,15:00,17:00"></div>
-            <div class="adm-form-group"><label class="adm-label">Maks. Booking per Slot</label><input type="number" id="s-max-slot" class="adm-input" placeholder="1" min="1" max="5"></div>
-            <div class="adm-form-group"><label class="adm-label">Batas Hari ke Depan</label><input type="number" id="s-advance-days" class="adm-input" placeholder="30" min="1"></div>
+            <div class="adm-form-group"><label class="adm-label">Slot Waktu (pisah koma)</label><input id="s-slots"
+                class="adm-input" placeholder="08:00,10:00,13:00,15:00,17:00"></div>
+            <div class="adm-form-group"><label class="adm-label">Maks. Booking per Slot</label><input type="number"
+                id="s-max-slot" class="adm-input" placeholder="1" min="1" max="5"></div>
+            <div class="adm-form-group"><label class="adm-label">Batas Hari ke Depan</label><input type="number"
+                id="s-advance-days" class="adm-input" placeholder="30" min="1"></div>
           </div>
           <div class="adm-settings-card">
             <div class="adm-settings-section-title"><i class="fas fa-comment-alt"></i> Pesan & Notifikasi</div>
-            <div class="adm-form-group"><label class="adm-label">Pesan Selamat Datang</label><textarea id="s-welcome" class="adm-textarea" placeholder="Selamat datang di InkMaster Studio..."></textarea></div>
-            <div class="adm-form-group"><label class="adm-label">Catatan Booking</label><textarea id="s-booking-note" class="adm-textarea" placeholder="Harap melakukan pembayaran DP minimal 30%..."></textarea></div>
+            <div class="adm-form-group"><label class="adm-label">Pesan Selamat Datang</label><textarea id="s-welcome"
+                class="adm-textarea" placeholder="Selamat datang di InkMaster Studio..."></textarea></div>
+            <div class="adm-form-group"><label class="adm-label">Catatan Booking</label><textarea id="s-booking-note"
+                class="adm-textarea" placeholder="Harap melakukan pembayaran DP minimal 30%..."></textarea></div>
           </div>
         </div>
       </div>
@@ -816,17 +1351,18 @@ body { background: var(--gray); }
       <div class="adm-modal-title" id="modal-artist-title"><i class="fas fa-user-plus"></i> Tambah Artist</div>
       <button class="adm-modal-close" onclick="closeModal('modal-artist')">&times;</button>
     </div>
-    <form id="form-artist" onsubmit="submitArtist(event)">
+    <form id="form-artist">
       <input type="hidden" id="artist-edit-id" value="">
       <div class="adm-modal-body">
         <div class="adm-form-group">
           <label class="adm-label">Nama Artist *</label>
-          <input type="text" name="name" id="artist-name" class="adm-input" required placeholder="Nama lengkap artist">
+          <input type="text" name="name" id="artist-name" class="adm-input" placeholder="Nama lengkap artist">
         </div>
         <div class="adm-grid-2">
           <div class="adm-form-group">
             <label class="adm-label">Spesialisasi</label>
-            <input type="text" name="specialization" id="artist-spec" class="adm-input" placeholder="Realism, Traditional...">
+            <input type="text" name="specialization" id="artist-spec" class="adm-input"
+              placeholder="Realism, Traditional...">
           </div>
           <div class="adm-form-group">
             <label class="adm-label">Pengalaman</label>
@@ -837,16 +1373,27 @@ body { background: var(--gray); }
           <label class="adm-label">Instagram</label>
           <input type="text" name="instagram" id="artist-ig" class="adm-input" placeholder="username (tanpa @)">
         </div>
-        <div class="adm-form-group">
-          <label class="adm-label">Status</label>
-          <select name="status" id="artist-status" class="adm-select">
-            <option value="active">Aktif</option>
-            <option value="inactive">Tidak Aktif</option>
-          </select>
+        <div class="adm-grid-2">
+          <div class="adm-form-group">
+            <label class="adm-label">Status</label>
+            <select name="status" id="artist-status" class="adm-select">
+              <option value="active">Aktif</option>
+              <option value="inactive">Tidak Aktif</option>
+            </select>
+          </div>
+          <div class="adm-form-group">
+            <label class="adm-label">Foto Profil</label>
+            <div class="adm-upload-zone" onclick="document.getElementById('artist-img-inp').click()" style="padding:12px;">
+              <i class="fas fa-camera" style="font-size:1.5rem;margin-bottom:4px;"></i>
+              <p id="upload-artist-lbl" style="font-size:0.75rem;">Pilih foto</p>
+              <input type="file" id="artist-img-inp" name="image" accept="image/*" style="display:none;" onchange="previewFile(this,'upload-artist-lbl')">
+            </div>
+          </div>
         </div>
         <div class="adm-form-group">
           <label class="adm-label">Bio</label>
-          <textarea name="description" id="artist-bio" class="adm-textarea" placeholder="Ceritakan tentang artist..."></textarea>
+          <textarea name="description" id="artist-bio" class="adm-textarea"
+            placeholder="Ceritakan tentang artist..."></textarea>
         </div>
       </div>
       <div class="adm-modal-footer">
@@ -864,26 +1411,31 @@ body { background: var(--gray); }
       <div class="adm-modal-title" id="modal-service-title"><i class="fas fa-tag"></i> Tambah Service</div>
       <button class="adm-modal-close" onclick="closeModal('modal-service')">&times;</button>
     </div>
-    <form id="form-service" onsubmit="submitService(event)">
+    <form id="form-service">
       <input type="hidden" id="service-edit-id" value="">
       <div class="adm-modal-body">
         <div class="adm-form-group">
           <label class="adm-label">Nama Service *</label>
-          <input type="text" name="name" id="svc-name" class="adm-input" required placeholder="Small Tattoo, Full Sleeve...">
+          <input type="text" name="name" id="svc-name" class="adm-input" placeholder="Small Tattoo, Full Sleeve...">
         </div>
         <div class="adm-grid-2">
           <div class="adm-form-group">
             <label class="adm-label">Harga (Rp) *</label>
-            <input type="number" name="price" id="svc-price" class="adm-input" required placeholder="500000">
+            <input type="number" name="price" id="svc-price" class="adm-input" placeholder="500000">
           </div>
           <div class="adm-form-group">
-            <label class="adm-label">Durasi (menit)</label>
-            <input type="number" name="duration" id="svc-duration" class="adm-input" placeholder="60">
+            <label class="adm-label">Diskon (%)</label>
+            <input type="number" name="discount" id="svc-discount" class="adm-input" placeholder="0" min="0" max="100">
           </div>
         </div>
         <div class="adm-form-group">
+          <label class="adm-label">Durasi (menit)</label>
+          <input type="number" name="duration" id="svc-duration" class="adm-input" placeholder="60">
+        </div>
+        <div class="adm-form-group">
           <label class="adm-label">Deskripsi</label>
-          <textarea name="description" id="svc-desc" class="adm-textarea" placeholder="Jelaskan layanan ini..."></textarea>
+          <textarea name="description" id="svc-desc" class="adm-textarea"
+            placeholder="Jelaskan layanan ini..."></textarea>
         </div>
       </div>
       <div class="adm-modal-footer">
@@ -901,11 +1453,11 @@ body { background: var(--gray); }
       <div class="adm-modal-title"><i class="fas fa-image"></i> Tambah Karya Gallery</div>
       <button class="adm-modal-close" onclick="closeModal('modal-gallery')">&times;</button>
     </div>
-    <form id="form-gallery" onsubmit="submitGallery(event)">
+    <form id="form-gallery">
       <div class="adm-modal-body">
         <div class="adm-form-group">
           <label class="adm-label">Judul Karya *</label>
-          <input type="text" name="title" class="adm-input" required placeholder="Nama karya">
+          <input type="text" name="title" class="adm-input" placeholder="Nama karya">
         </div>
         <div class="adm-grid-2">
           <div class="adm-form-group">
@@ -933,7 +1485,8 @@ body { background: var(--gray); }
           <div class="adm-upload-zone" onclick="document.getElementById('gallery-img-inp').click()">
             <i class="fas fa-cloud-upload-alt"></i>
             <p id="upload-lbl">Klik untuk pilih gambar</p>
-            <input type="file" id="gallery-img-inp" name="image" accept="image/*" style="display:none;" onchange="previewFile(this,'upload-lbl')">
+            <input type="file" id="gallery-img-inp" name="image" accept="image/*" style="display:none;"
+              onchange="previewFile(this,'upload-lbl')">
           </div>
         </div>
       </div>
@@ -979,432 +1532,456 @@ body { background: var(--gray); }
 
 {% block extra_js %}
 <script>
-// ── Helpers ───────────────────────────────────────────────────────────────────
-function openModal(id)  { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+  // ── Helpers ───────────────────────────────────────────────────────────────────
+  function openModal(id) { document.getElementById(id).classList.add('open'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-function showToast(msg, type='success') {
-  document.querySelectorAll('.adm-toast').forEach(t=>t.remove());
-  const el = document.createElement('div');
-  el.className = 'adm-toast ' + type;
-  el.innerHTML = `<i class="fas fa-${type==='success'?'check-circle':'exclamation-circle'}" style="color:${type==='success'?'var(--success)':'var(--error)'};"></i> ${msg}`;
-  document.body.appendChild(el);
-  setTimeout(()=>el.remove(), 3500);
-}
+  function showToast(msg, type = 'success') {
+    document.querySelectorAll('.adm-toast').forEach(t => t.remove());
+    const el = document.createElement('div');
+    el.className = 'adm-toast ' + type;
+    el.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}" style="color:${type === 'success' ? 'var(--success)' : 'var(--error)'};"></i> ${msg}`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 3500);
+  }
 
-function badge(status) {
-  const map = {
-    pending:'pending', approved:'approved', waiting_payment:'pending',
-    payment_uploaded:'pending', confirmed:'confirmed', tattoo_process:'approved',
-    completed:'completed', cancelled:'cancelled', uploaded:'uploaded',
-    active:'active', inactive:'inactive',
+  function badge(status) {
+    const map = {
+      pending: 'pending', approved: 'approved', waiting_payment: 'pending',
+      payment_uploaded: 'pending', confirmed: 'confirmed', tattoo_process: 'approved',
+      completed: 'completed', cancelled: 'cancelled', uploaded: 'uploaded',
+      active: 'active', inactive: 'inactive',
+    };
+    const lbl = {
+      pending: 'Pending', approved: 'Approved', waiting_payment: 'Waiting Payment',
+      payment_uploaded: 'Payment Uploaded', confirmed: 'Confirmed',
+      tattoo_process: 'In Progress', completed: 'Completed', cancelled: 'Cancelled',
+      uploaded: 'Uploaded', active: 'Aktif', inactive: 'Inactive',
+    };
+    const cls = map[status] || 'inactive';
+    return `<span class="adm-badge ${cls}">${lbl[status] || status}</span>`;
+  }
+
+  function fmt(v) { return v ? 'Rp ' + Number(v).toLocaleString('id-ID') : '-'; }
+  function fmtDate(s) {
+    if (!s) return '-';
+    if (s.includes('T')) return new Date(s).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+    return s;
+  }
+
+  document.querySelectorAll('.adm-modal-overlay').forEach(o => {
+    o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+  });
+
+  // ── Tab ───────────────────────────────────────────────────────────────────────
+  const TAB_TITLES = {
+    overview: 'Overview', bookings: 'Manage Bookings', payments: 'Payment Management',
+    artists: 'Manage Artists', services: 'Manage Services', gallery: 'Manage Gallery',
+    customers: 'Customer Management', settings: 'Studio Settings'
   };
-  const lbl = {
-    pending:'Pending', approved:'Approved', waiting_payment:'Waiting Payment',
-    payment_uploaded:'Payment Uploaded', confirmed:'Confirmed',
-    tattoo_process:'In Progress', completed:'Completed', cancelled:'Cancelled',
-    uploaded:'Uploaded', active:'Aktif', inactive:'Inactive',
-  };
-  const cls = map[status]||'inactive';
-  return `<span class="adm-badge ${cls}">${lbl[status]||status}</span>`;
-}
 
-function fmt(v) { return v?'Rp '+Number(v).toLocaleString('id-ID'):'-'; }
-function fmtDate(s) {
-  if (!s) return '-';
-  if (s.includes('T')) return new Date(s).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'});
-  return s;
-}
+  function switchTab(el, tab) {
+    document.querySelectorAll('.adm-nav-item').forEach(a => a.classList.remove('active'));
+    if (el) el.classList.add('active');
+    document.querySelectorAll('.adm-tab').forEach(t => t.classList.remove('active'));
+    const target = document.getElementById('tab-' + tab);
+    if (target) target.classList.add('active');
+    document.getElementById('topbar-title').textContent = TAB_TITLES[tab] || tab;
+    document.querySelector('.adm-sidebar').classList.remove('open');
+    const loaders = { bookings: loadBookings, artists: loadArtists, services: loadServices, gallery: loadGallery, payments: loadPayments, customers: loadCustomers, settings: loadSettings };
+    if (loaders[tab]) loaders[tab]();
+  }
 
-document.querySelectorAll('.adm-modal-overlay').forEach(o=>{
-  o.addEventListener('click',e=>{ if(e.target===o) o.classList.remove('open'); });
-});
+  // ── Overview ──────────────────────────────────────────────────────────────────
+  async function loadOverview() {
+    try {
+      const [bRes, aRes, pRes] = await Promise.all([
+        fetch('/api/bookings').then(r => r.json()),
+        fetch('/api/artists').then(r => r.json()),
+        fetch('/api/payments').then(r => r.json()),
+      ]);
+      const bookings = bRes.bookings || [], artists = aRes.artists || [], payments = pRes.payments || [];
 
-// ── Tab ───────────────────────────────────────────────────────────────────────
-const TAB_TITLES = {
-  overview:'Overview', bookings:'Manage Bookings', payments:'Payment Management',
-  artists:'Manage Artists', services:'Manage Services', gallery:'Manage Gallery',
-  customers:'Customer Management', settings:'Studio Settings'
-};
+      document.getElementById('stat-total').textContent = bookings.length;
+      document.getElementById('stat-artists').textContent = artists.filter(a => a.status !== 'inactive').length;
+      document.getElementById('stat-waiting').textContent = bookings.filter(b => ['waiting_payment', 'payment_uploaded'].includes(b.status)).length;
 
-function switchTab(el, tab) {
-  document.querySelectorAll('.adm-nav-item').forEach(a=>a.classList.remove('active'));
-  if (el) el.classList.add('active');
-  document.querySelectorAll('.adm-tab').forEach(t=>t.classList.remove('active'));
-  const target = document.getElementById('tab-'+tab);
-  if (target) target.classList.add('active');
-  document.getElementById('topbar-title').textContent = TAB_TITLES[tab]||tab;
-  document.querySelector('.adm-sidebar').classList.remove('open');
-  const loaders = {bookings:loadBookings,artists:loadArtists,services:loadServices,gallery:loadGallery,payments:loadPayments,customers:loadCustomers,settings:loadSettings};
-  if (loaders[tab]) loaders[tab]();
-}
+      const rev = payments.filter(p => p.payment_status === 'confirmed').reduce((s, p) => s + (parseInt(p.amount) || 0), 0);
+      document.getElementById('stat-revenue').textContent = 'Rp ' + rev.toLocaleString('id-ID');
 
-// ── Overview ──────────────────────────────────────────────────────────────────
-async function loadOverview() {
-  try {
-    const [bRes, aRes, pRes] = await Promise.all([
-      fetch('/api/bookings').then(r=>r.json()),
-      fetch('/api/artists').then(r=>r.json()),
-      fetch('/api/payments').then(r=>r.json()),
-    ]);
-    const bookings=bRes.bookings||[], artists=aRes.artists||[], payments=pRes.payments||[];
+      const pending = bookings.filter(b => ['pending', 'waiting_payment'].includes(b.status)).length;
+      const badgeEl = document.getElementById('badge-bookings');
+      badgeEl.textContent = pending || '0';
+      badgeEl.style.display = pending ? 'inline' : 'none';
 
-    document.getElementById('stat-total').textContent   = bookings.length;
-    document.getElementById('stat-artists').textContent = artists.filter(a=>a.status!=='inactive').length;
-    document.getElementById('stat-waiting').textContent = bookings.filter(b=>['waiting_payment','payment_uploaded'].includes(b.status)).length;
-
-    const rev = payments.filter(p=>p.payment_status==='confirmed').reduce((s,p)=>s+(parseInt(p.amount)||0),0);
-    document.getElementById('stat-revenue').textContent = 'Rp '+rev.toLocaleString('id-ID');
-
-    const pending = bookings.filter(b=>['pending','waiting_payment'].includes(b.status)).length;
-    const badge = document.getElementById('badge-bookings');
-    badge.textContent = pending||'0';
-    badge.style.display = pending ? 'inline' : 'none';
-
-    // Today
-    const today = new Date().toISOString().split('T')[0];
-    const todayB = bookings.filter(b=>b.date===today);
-    const el = document.getElementById('today-bookings');
-    if (todayB.length) {
-      el.innerHTML = `<div class="adm-table-wrap"><table class="adm-table">
+      // Today
+      const today = new Date().toISOString().split('T')[0];
+      const todayB = bookings.filter(b => b.date === today);
+      const el = document.getElementById('today-bookings');
+      if (todayB.length) {
+        el.innerHTML = `<div class="adm-table-wrap"><table class="adm-table">
         <thead><tr><th>Kode</th><th>Customer</th><th>Artist</th><th>Jam</th><th>Status</th></tr></thead>
-        <tbody>${todayB.slice(0,8).map(b=>`<tr>
-          <td class="bold">${b.booking_code||'-'}</td><td>${b.customer_name||'-'}</td>
-          <td>${b.artist_name||'-'}</td><td>${b.time||'-'}</td><td>${badge(b.status)}</td>
+        <tbody>${todayB.slice(0, 8).map(b => `<tr>
+          <td class="bold">${b.booking_code || '-'}</td><td>${b.customer_name || '-'}</td>
+          <td>${b.artist_name || '-'}</td><td>${b.time || '-'}</td><td>${badge(b.status)}</td>
         </tr>`).join('')}</tbody>
       </table></div>`;
-    } else {
-      el.innerHTML = '<div class="adm-empty"><i class="fas fa-calendar-times"></i><p>Tidak ada booking untuk hari ini.</p></div>';
-    }
+      } else {
+        el.innerHTML = '<div class="adm-empty"><i class="fas fa-calendar-times"></i><p>Tidak ada booking untuk hari ini.</p></div>';
+      }
 
-    // Gallery artist select
-    const sel = document.getElementById('gallery-artist-sel');
-    if (sel) {
-      sel.innerHTML = '<option value="">Pilih artist</option>'+
-        artists.map(a=>`<option value="${a._id}">${a.name}</option>`).join('');
-    }
-  } catch(e) { console.error(e); }
-}
+      // Gallery artist select
+      const sel = document.getElementById('gallery-artist-sel');
+      if (sel) {
+        sel.innerHTML = '<option value="">Pilih artist</option>' +
+          artists.map(a => `<option value="${a._id}">${a.name}</option>`).join('');
+      }
+    } catch (e) { console.error(e); }
+  }
 
-// ── Bookings ──────────────────────────────────────────────────────────────────
-async function loadBookings() {
-  const f = document.getElementById('booking-filter')?.value||'';
-  const url = '/api/bookings'+(f?'?status='+f:'');
-  const tbody = document.getElementById('bookings-tbody');
-  tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--gray-600);">Memuat...</td></tr>`;
-  try {
-    const data = await fetch(url).then(r=>r.json());
-    const rows = data.bookings||[];
-    if (!rows.length) { tbody.innerHTML=`<tr><td colspan="8"><div class="adm-empty"><i class="fas fa-inbox"></i><p>Tidak ada data.</p></div></td></tr>`; return; }
-    tbody.innerHTML = rows.map(b=>`<tr>
-      <td class="bold">${b.booking_code||'-'}</td>
-      <td>${b.customer_name||'-'}</td>
-      <td>${b.artist_name||'-'}</td>
-      <td>${b.service_name||'-'}</td>
-      <td>${b.date||'-'}</td>
-      <td>${b.time||'-'}</td>
+  // ── Bookings ──────────────────────────────────────────────────────────────────
+  async function loadBookings() {
+    const f = document.getElementById('booking-filter')?.value || '';
+    const url = '/api/bookings' + (f ? '?status=' + f : '');
+    const tbody = document.getElementById('bookings-tbody');
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--gray-600);">Memuat...</td></tr>`;
+    try {
+      const data = await fetch(url).then(r => r.json());
+      const rows = data.bookings || [];
+      if (!rows.length) { tbody.innerHTML = `<tr><td colspan="8"><div class="adm-empty"><i class="fas fa-inbox"></i><p>Tidak ada data.</p></div></td></tr>`; return; }
+      tbody.innerHTML = rows.map(b => `<tr>
+      <td class="bold">${b.booking_code || '-'}</td>
+      <td>${b.customer_name || '-'}</td>
+      <td>${b.artist_name || '-'}</td>
+      <td>${b.service_name || '-'}</td>
+      <td>${b.date || '-'}</td>
+      <td>${b.time || '-'}</td>
       <td>${badge(b.status)}</td>
       <td>
-        <button class="btn btn-dark btn-sm" onclick="openUpdateBooking('${b._id}','${b.booking_code||''}','${b.status}')">
+        <button class="btn btn-dark btn-sm" onclick="openUpdateBooking('${b._id}','${b.booking_code || ''}','${b.status}')">
           <i class="fas fa-edit"></i>
         </button>
       </td>
     </tr>`).join('');
-  } catch(e) { tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;color:var(--error);padding:24px;">Gagal memuat.</td></tr>`; }
-}
+    } catch (e) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--error);padding:24px;">Gagal memuat.</td></tr>`; }
+  }
 
-let _bookingId=null;
-function openUpdateBooking(id,code,status) {
-  _bookingId=id;
-  document.getElementById('upd-booking-code').value = code||id;
-  document.getElementById('upd-booking-status').value = status||'pending';
-  openModal('modal-booking-status');
-}
-async function doUpdateBooking() {
-  if (!_bookingId) return;
-  const status = document.getElementById('upd-booking-status').value;
-  const res = await fetch('/api/bookings/'+_bookingId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({status})}).then(r=>r.json());
-  if (res.success) { showToast('Status diupdate!'); closeModal('modal-booking-status'); loadBookings(); loadOverview(); }
-  else showToast(res.message||'Gagal','error');
-}
+  let _bookingId = null;
+  function openUpdateBooking(id, code, status) {
+    _bookingId = id;
+    document.getElementById('upd-booking-code').value = code || id;
+    document.getElementById('upd-booking-status').value = status || 'pending';
+    openModal('modal-booking-status');
+  }
+  async function doUpdateBooking() {
+    if (!_bookingId) return;
+    const status = document.getElementById('upd-booking-status').value;
+    const res = await fetch('/api/bookings/' + _bookingId, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) }).then(r => r.json());
+    if (res.success) { showToast('Status diupdate!'); closeModal('modal-booking-status'); loadBookings(); loadOverview(); }
+    else showToast(res.message || 'Gagal', 'error');
+  }
 
-// ── Artists ───────────────────────────────────────────────────────────────────
-async function loadArtists() {
-  const grid = document.getElementById('artists-grid');
-  grid.innerHTML = `<div class="adm-empty" style="grid-column:1/-1;"><i class="fas fa-spinner fa-spin"></i><p>Memuat...</p></div>`;
-  try {
-    const data = await fetch('/api/artists').then(r=>r.json());
-    const items = data.artists||[];
-    if (!items.length) { grid.innerHTML=`<div class="adm-empty" style="grid-column:1/-1;"><i class="fas fa-user-slash"></i><p>Belum ada artist.</p></div>`; return; }
-    grid.innerHTML = items.map(a=>`
+  // ── Artists ───────────────────────────────────────────────────────────────────
+  async function loadArtists() {
+    const grid = document.getElementById('artists-grid');
+    grid.innerHTML = `<div class="adm-empty" style="grid-column:1/-1;"><i class="fas fa-spinner fa-spin"></i><p>Memuat...</p></div>`;
+    try {
+      const data = await fetch('/api/artists').then(r => r.json());
+      const items = data.artists || [];
+      if (!items.length) { grid.innerHTML = `<div class="adm-empty" style="grid-column:1/-1;"><i class="fas fa-user-slash"></i><p>Belum ada artist.</p></div>`; return; }
+      grid.innerHTML = items.map(a => `
       <div class="adm-artist-card">
-        <div class="adm-artist-avatar">🎨</div>
-        <div class="adm-artist-name">${a.name||'Artist'}</div>
-        <div class="adm-artist-spec">${a.specialization||'—'}</div>
-        <div class="adm-artist-exp">${a.experience||''}</div>
-        ${badge(a.status||'active')}
+        <div class="adm-artist-avatar" style="overflow:hidden;">
+          ${a.image ? `<img src="/static/uploads/${a.image}" style="width:100%;height:100%;object-fit:cover;">` : '🎨'}
+        </div>
+        <div class="adm-artist-name">${a.name || 'Artist'}</div>
+        <div class="adm-artist-spec">${a.specialization || '—'}</div>
+        <div class="adm-artist-exp">${a.experience || ''}</div>
+        ${badge(a.status || 'active')}
         <div class="adm-artist-actions">
-          <button class="btn btn-dark btn-sm" onclick="openEditArtist(${JSON.stringify(a).replace(/"/g,'&quot;')})"><i class="fas fa-edit"></i></button>
+          <button class="btn btn-dark btn-sm" onclick="openEditArtist(${JSON.stringify(a).replace(/"/g, '&quot;')})"><i class="fas fa-edit"></i></button>
           <button class="btn btn-danger btn-sm" onclick="deleteArtist('${a._id}','${a.name}')"><i class="fas fa-trash"></i></button>
         </div>
       </div>`).join('');
-  } catch(e) { grid.innerHTML=`<div class="adm-empty" style="grid-column:1/-1;"><i class="fas fa-exclamation-triangle" style="color:var(--error);"></i><p>Gagal memuat.</p></div>`; }
-}
+    } catch (e) { grid.innerHTML = `<div class="adm-empty" style="grid-column:1/-1;"><i class="fas fa-exclamation-triangle" style="color:var(--error);"></i><p>Gagal memuat.</p></div>`; }
+  }
 
-function openAddArtist() {
-  document.getElementById('artist-edit-id').value='';
-  document.getElementById('modal-artist-title').innerHTML='<i class="fas fa-user-plus"></i> Tambah Artist';
-  document.getElementById('form-artist').reset();
-  openModal('modal-artist');
-}
-function openEditArtist(a) {
-  document.getElementById('artist-edit-id').value = a._id||'';
-  document.getElementById('modal-artist-title').innerHTML='<i class="fas fa-edit"></i> Edit Artist';
-  document.getElementById('artist-name').value  = a.name||'';
-  document.getElementById('artist-spec').value  = a.specialization||'';
-  document.getElementById('artist-exp').value   = a.experience||'';
-  document.getElementById('artist-ig').value    = a.instagram||'';
-  document.getElementById('artist-status').value= a.status||'active';
-  document.getElementById('artist-bio').value   = a.description||'';
-  openModal('modal-artist');
-}
+  function openAddArtist() {
+    document.getElementById('artist-edit-id').value = '';
+    document.getElementById('modal-artist-title').innerHTML = '<i class="fas fa-user-plus"></i> Tambah Artist';
+    document.getElementById('form-artist').reset();
+    document.getElementById('upload-artist-lbl').textContent = 'Pilih foto';
+    openModal('modal-artist');
+  }
+  function openEditArtist(a) {
+    document.getElementById('artist-edit-id').value = a._id || '';
+    document.getElementById('modal-artist-title').innerHTML = '<i class="fas fa-edit"></i> Edit Artist';
+    document.getElementById('artist-name').value = a.name || '';
+    document.getElementById('artist-spec').value = a.specialization || '';
+    document.getElementById('artist-exp').value = a.experience || '';
+    document.getElementById('artist-ig').value = a.instagram || '';
+    document.getElementById('artist-status').value = a.status || 'active';
+    document.getElementById('artist-bio').value = a.description || '';
+    document.getElementById('upload-artist-lbl').textContent = a.image ? 'Ganti foto' : 'Pilih foto';
+    document.getElementById('artist-img-inp').value = '';
+    openModal('modal-artist');
+  }
 
-document.querySelector('[onclick="openModal(\'modal-artist\')"]')?.setAttribute('onclick','openAddArtist()');
 
-async function submitArtist(e) {
-  e.preventDefault();
-  const id = document.getElementById('artist-edit-id').value;
-  const data = {
-    name: document.getElementById('artist-name').value,
-    specialization: document.getElementById('artist-spec').value,
-    experience: document.getElementById('artist-exp').value,
-    instagram: document.getElementById('artist-ig').value,
-    status: document.getElementById('artist-status').value,
-    description: document.getElementById('artist-bio').value,
-  };
-  const url = id ? '/api/artists/'+id : '/api/artists';
-  const method = id ? 'PUT' : 'POST';
-  try {
-    const res = await fetch(url,{method,headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(r=>r.json());
-    if (res.success) { showToast(id?'Artist diupdate!':'Artist ditambahkan!'); closeModal('modal-artist'); loadArtists(); loadOverview(); }
-    else showToast(res.message||'Gagal','error');
-  } catch(e) { showToast('Error','error'); }
-}
 
-async function deleteArtist(id,name) {
-  if (!confirm(`Hapus artist "${name}"?`)) return;
-  const res = await fetch('/api/artists/'+id,{method:'DELETE'}).then(r=>r.json());
-  if (res.success) { showToast('Artist dihapus.'); loadArtists(); loadOverview(); }
-  else showToast(res.message||'Gagal','error');
-}
+  async function submitArtist(e) {
+    e.preventDefault();
+    const id = document.getElementById('artist-edit-id').value;
+    
+    const formData = new FormData();
+    formData.append('name', document.getElementById('artist-name').value);
+    formData.append('specialization', document.getElementById('artist-spec').value);
+    formData.append('experience', document.getElementById('artist-exp').value);
+    formData.append('instagram', document.getElementById('artist-ig').value);
+    formData.append('status', document.getElementById('artist-status').value);
+    formData.append('description', document.getElementById('artist-bio').value);
+    
+    const fileInp = document.getElementById('artist-img-inp');
+    if (fileInp && fileInp.files[0]) {
+      formData.append('image', fileInp.files[0]);
+    }
+    
+    const url = id ? '/api/artists/' + id : '/api/artists';
+    const method = 'POST'; // Using POST instead of PUT to avoid multipart parsing issues
+    try {
+      const res = await fetch(url, { method, body: formData }).then(r => r.json());
+      if (res.success) { showToast(id ? 'Artist diupdate!' : 'Artist ditambahkan!'); closeModal('modal-artist'); loadArtists(); loadOverview(); }
+      else showToast(res.message || 'Gagal', 'error');
+    } catch (e) { showToast('Error', 'error'); }
+  }
 
-// ── Services ──────────────────────────────────────────────────────────────────
-async function loadServices() {
-  const tbody = document.getElementById('services-tbody');
-  tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--gray-600);">Memuat...</td></tr>`;
-  try {
-    const data = await fetch('/api/services').then(r=>r.json());
-    const rows = data.services||[];
-    if (!rows.length) { tbody.innerHTML=`<tr><td colspan="5"><div class="adm-empty"><i class="fas fa-tags"></i><p>Belum ada service.</p></div></td></tr>`; return; }
-    tbody.innerHTML = rows.map(s=>`<tr>
-      <td class="bold">${s.name||'-'}</td>
+  async function deleteArtist(id, name) {
+    if (!confirm(`Hapus artist "${name}"?`)) return;
+    const res = await fetch('/api/artists/' + id, { method: 'DELETE' }).then(r => r.json());
+    if (res.success) { showToast('Artist dihapus.'); loadArtists(); loadOverview(); }
+    else showToast(res.message || 'Gagal', 'error');
+  }
+
+  // ── Services ──────────────────────────────────────────────────────────────────
+  async function loadServices() {
+    const tbody = document.getElementById('services-tbody');
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--gray-600);">Memuat...</td></tr>`;
+    try {
+      const data = await fetch('/api/services').then(r => r.json());
+      const rows = data.services || [];
+      if (!rows.length) { tbody.innerHTML = `<tr><td colspan="5"><div class="adm-empty"><i class="fas fa-tags"></i><p>Belum ada service.</p></div></td></tr>`; return; }
+      tbody.innerHTML = rows.map(s => `<tr>
+      <td class="bold">${s.name || '-'}</td>
       <td style="font-weight:700;color:var(--dark);">${fmt(s.price)}</td>
-      <td>${s.duration?s.duration+' menit':'-'}</td>
-      <td style="color:var(--gray-600);font-size:.82rem;">${(s.description||'').substring(0,60)}</td>
+      <td style="font-weight:700;color:var(--secondary);">${s.discount ? s.discount + '%' : '-'}</td>
+      <td>${s.duration ? s.duration + ' menit' : '-'}</td>
+      <td style="color:var(--gray-600);font-size:.82rem;">${(s.description || '').substring(0, 60)}</td>
       <td>
         <div style="display:flex;gap:6px;">
-          <button class="btn btn-dark btn-sm" onclick="openEditService(${JSON.stringify(s).replace(/"/g,'&quot;')})"><i class="fas fa-edit"></i></button>
+          <button class="btn btn-dark btn-sm" onclick="openEditService(${JSON.stringify(s).replace(/"/g, '&quot;')})"><i class="fas fa-edit"></i></button>
           <button class="btn btn-danger btn-sm" onclick="deleteService('${s._id}','${s.name}')"><i class="fas fa-trash"></i></button>
         </div>
       </td>
     </tr>`).join('');
-  } catch(e) { tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;color:var(--error);padding:24px;">Gagal memuat.</td></tr>`; }
-}
+    } catch (e) { tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--error);padding:24px;">Gagal memuat.</td></tr>`; }
+  }
 
-function openAddService() {
-  document.getElementById('service-edit-id').value='';
-  document.getElementById('modal-service-title').innerHTML='<i class="fas fa-tag"></i> Tambah Service';
-  document.getElementById('form-service').reset();
-  openModal('modal-service');
-}
-function openEditService(s) {
-  document.getElementById('service-edit-id').value = s._id||'';
-  document.getElementById('modal-service-title').innerHTML='<i class="fas fa-edit"></i> Edit Service';
-  document.getElementById('svc-name').value     = s.name||'';
-  document.getElementById('svc-price').value    = s.price||'';
-  document.getElementById('svc-duration').value = s.duration||'';
-  document.getElementById('svc-desc').value     = s.description||'';
-  openModal('modal-service');
-}
+  function openAddService() {
+    document.getElementById('service-edit-id').value = '';
+    document.getElementById('modal-service-title').innerHTML = '<i class="fas fa-tag"></i> Tambah Service';
+    document.getElementById('form-service').reset();
+    openModal('modal-service');
+  }
+  function openEditService(s) {
+    document.getElementById('service-edit-id').value = s._id || '';
+    document.getElementById('modal-service-title').innerHTML = '<i class="fas fa-edit"></i> Edit Service';
+    document.getElementById('svc-name').value = s.name || '';
+    document.getElementById('svc-price').value = s.price || '';
+    document.getElementById('svc-discount').value = s.discount || '';
+    document.getElementById('svc-duration').value = s.duration || '';
+    document.getElementById('svc-desc').value = s.description || '';
+    openModal('modal-service');
+  }
 
-async function submitService(e) {
-  e.preventDefault();
-  const id = document.getElementById('service-edit-id').value;
-  const data = {
-    name: document.getElementById('svc-name').value,
-    price: document.getElementById('svc-price').value,
-    duration: document.getElementById('svc-duration').value,
-    description: document.getElementById('svc-desc').value,
-  };
-  const url = id ? '/api/services/'+id : '/api/services';
-  const method = id ? 'PUT' : 'POST';
-  try {
-    const res = await fetch(url,{method,headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(r=>r.json());
-    if (res.success) { showToast(id?'Service diupdate!':'Service ditambahkan!'); closeModal('modal-service'); loadServices(); }
-    else showToast(res.message||'Gagal','error');
-  } catch(e) { showToast('Error','error'); }
-}
+  async function submitService(e) {
+    e.preventDefault();
+    const id = document.getElementById('service-edit-id').value;
+    const data = {
+      name: document.getElementById('svc-name').value,
+      price: document.getElementById('svc-price').value,
+      discount: document.getElementById('svc-discount').value,
+      duration: document.getElementById('svc-duration').value,
+      description: document.getElementById('svc-desc').value,
+    };
+    const url = id ? '/api/services/' + id : '/api/services';
+    const method = id ? 'PUT' : 'POST';
+    try {
+      const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }).then(r => r.json());
+      if (res.success) { showToast(id ? 'Service diupdate!' : 'Service ditambahkan!'); closeModal('modal-service'); loadServices(); }
+      else showToast(res.message || 'Gagal', 'error');
+    } catch (e) { showToast('Error', 'error'); }
+  }
 
-async function deleteService(id,name) {
-  if (!confirm(`Hapus service "${name}"?`)) return;
-  const res = await fetch('/api/services/'+id,{method:'DELETE'}).then(r=>r.json());
-  if (res.success) { showToast('Service dihapus.'); loadServices(); }
-  else showToast(res.message||'Gagal','error');
-}
+  async function deleteService(id, name) {
+    if (!confirm(`Hapus service "${name}"?`)) return;
+    const res = await fetch('/api/services/' + id, { method: 'DELETE' }).then(r => r.json());
+    if (res.success) { showToast('Service dihapus.'); loadServices(); }
+    else showToast(res.message || 'Gagal', 'error');
+  }
 
-// ── Gallery ───────────────────────────────────────────────────────────────────
-function previewFile(input, lblId) {
-  if (input.files&&input.files[0]) document.getElementById(lblId).textContent='✅ '+input.files[0].name;
-}
+  // ── Gallery ───────────────────────────────────────────────────────────────────
+  function previewFile(input, lblId) {
+    if (input.files && input.files[0]) document.getElementById(lblId).textContent = '✅ ' + input.files[0].name;
+  }
 
-async function loadGallery() {
-  const grid = document.getElementById('gallery-grid');
-  grid.innerHTML = `<div class="adm-empty" style="grid-column:1/-1;"><i class="fas fa-spinner fa-spin"></i><p>Memuat...</p></div>`;
-  try {
-    const data = await fetch('/api/gallery').then(r=>r.json());
-    const items = data.gallery||[];
-    if (!items.length) { grid.innerHTML=`<div class="adm-empty" style="grid-column:1/-1;"><i class="fas fa-images"></i><p>Gallery kosong.</p></div>`; return; }
-    grid.innerHTML = items.map(item=>`
+  async function loadGallery() {
+    const grid = document.getElementById('gallery-grid');
+    grid.innerHTML = `<div class="adm-empty" style="grid-column:1/-1;"><i class="fas fa-spinner fa-spin"></i><p>Memuat...</p></div>`;
+    try {
+      const data = await fetch('/api/gallery').then(r => r.json());
+      const items = data.gallery || [];
+      if (!items.length) { grid.innerHTML = `<div class="adm-empty" style="grid-column:1/-1;"><i class="fas fa-images"></i><p>Gallery kosong.</p></div>`; return; }
+      grid.innerHTML = items.map(item => `
       <div class="adm-gallery-item">
         <div class="adm-gallery-thumb">
-          ${item.image?`<img src="/static/uploads/${item.image}" alt="${item.title||''}" onerror="this.parentNode.innerHTML='<i class=\'fas fa-image\'></i>'">`:'<i class="fas fa-image"></i>'}
+          ${item.image ? `<img src="/static/uploads/${item.image}" alt="${item.title || ''}" onerror="this.parentNode.innerHTML='<i class=\'fas fa-image\'></i>'">` : '<i class="fas fa-image"></i>'}
         </div>
         <div class="adm-gallery-overlay">
           <button class="btn btn-danger btn-sm" onclick="deleteGallery('${item._id}')"><i class="fas fa-trash"></i></button>
         </div>
         <div class="adm-gallery-info">
-          <div class="adm-gallery-title">${item.title||'Karya'}</div>
-          <div class="adm-gallery-cat">${item.category||''} ${item.artist_name?'· '+item.artist_name:''}</div>
+          <div class="adm-gallery-title">${item.title || 'Karya'}</div>
+          <div class="adm-gallery-cat">${item.category || ''} ${item.artist_name ? '· ' + item.artist_name : ''}</div>
         </div>
       </div>`).join('');
-  } catch(e) { grid.innerHTML=`<div class="adm-empty" style="grid-column:1/-1;"><i class="fas fa-exclamation-triangle" style="color:var(--error);"></i><p>Gagal memuat.</p></div>`; }
-}
+    } catch (e) { grid.innerHTML = `<div class="adm-empty" style="grid-column:1/-1;"><i class="fas fa-exclamation-triangle" style="color:var(--error);"></i><p>Gagal memuat.</p></div>`; }
+  }
 
-async function submitGallery(e) {
-  e.preventDefault();
-  const formData = new FormData(e.target);
-  try {
-    const res = await fetch('/api/gallery',{method:'POST',body:formData}).then(r=>r.json());
-    if (res.success) { showToast('Karya ditambahkan!'); closeModal('modal-gallery'); e.target.reset(); document.getElementById('upload-lbl').textContent='Klik untuk pilih gambar'; loadGallery(); }
-    else showToast(res.message||'Gagal','error');
-  } catch(e) { showToast('Error','error'); }
-}
+  async function submitGallery(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    try {
+      const res = await fetch('/api/gallery', { method: 'POST', body: formData }).then(r => r.json());
+      if (res.success) { showToast('Karya ditambahkan!'); closeModal('modal-gallery'); e.target.reset(); document.getElementById('upload-lbl').textContent = 'Klik untuk pilih gambar'; loadGallery(); }
+      else showToast(res.message || 'Gagal', 'error');
+    } catch (e) { showToast('Error', 'error'); }
+  }
 
-async function deleteGallery(id) {
-  if (!confirm('Hapus karya ini?')) return;
-  const res = await fetch('/api/gallery/'+id,{method:'DELETE'}).then(r=>r.json());
-  if (res.success) { showToast('Karya dihapus.'); loadGallery(); }
-  else showToast(res.message||'Gagal','error');
-}
+  async function deleteGallery(id) {
+    if (!confirm('Hapus karya ini?')) return;
+    const res = await fetch('/api/gallery/' + id, { method: 'DELETE' }).then(r => r.json());
+    if (res.success) { showToast('Karya dihapus.'); loadGallery(); }
+    else showToast(res.message || 'Gagal', 'error');
+  }
 
-// ── Payments ──────────────────────────────────────────────────────────────────
-async function loadPayments() {
-  const tbody = document.getElementById('payments-tbody');
-  tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--gray-600);">Memuat...</td></tr>`;
-  try {
-    const data = await fetch('/api/payments').then(r=>r.json());
-    const rows = data.payments||[];
-    if (!rows.length) { tbody.innerHTML=`<tr><td colspan="6"><div class="adm-empty"><i class="fas fa-credit-card"></i><p>Belum ada pembayaran.</p></div></td></tr>`; return; }
-    tbody.innerHTML = rows.map(p=>`<tr>
-      <td class="bold">${p.booking_code||'-'}</td>
-      <td>${p.customer_name||'-'}</td>
+  // ── Payments ──────────────────────────────────────────────────────────────────
+  async function loadPayments() {
+    const tbody = document.getElementById('payments-tbody');
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--gray-600);">Memuat...</td></tr>`;
+    try {
+      const data = await fetch('/api/payments').then(r => r.json());
+      const rows = data.payments || [];
+      if (!rows.length) { tbody.innerHTML = `<tr><td colspan="6"><div class="adm-empty"><i class="fas fa-credit-card"></i><p>Belum ada pembayaran.</p></div></td></tr>`; return; }
+      tbody.innerHTML = rows.map(p => `<tr>
+      <td class="bold">${p.booking_code || '-'}</td>
+      <td>${p.customer_name || '-'}</td>
       <td style="font-weight:700;">${fmt(p.amount)}</td>
-      <td>${p.proof_image?`<span class="adm-badge confirmed"><i class="fas fa-check"></i> Ada</span>`:`<span style="color:var(--gray-600);">—</span>`}</td>
-      <td>${badge(p.payment_status||'uploaded')}</td>
-      <td>${p.payment_status==='uploaded'
-        ?`<button class="btn btn-success btn-sm" onclick="confirmPayment('${p._id}')"><i class="fas fa-check"></i> Konfirmasi</button>`
-        :(p.payment_status==='confirmed'?`<span style="color:var(--success);font-size:.82rem;font-weight:700;"><i class="fas fa-check-double"></i> Dikonfirmasi</span>`:'—')
-      }</td>
+      <td>${p.proof_image ? `<span class="adm-badge confirmed"><i class="fas fa-check"></i> Ada</span>` : `<span style="color:var(--gray-600);">—</span>`}</td>
+      <td>${badge(p.payment_status || 'uploaded')}</td>
+      <td>${p.payment_status === 'uploaded'
+          ? `<button class="btn btn-success btn-sm" onclick="confirmPayment('${p._id}')"><i class="fas fa-check"></i> Konfirmasi</button>`
+          : (p.payment_status === 'confirmed' ? `<span style="color:var(--success);font-size:.82rem;font-weight:700;"><i class="fas fa-check-double"></i> Dikonfirmasi</span>` : '—')
+        }</td>
     </tr>`).join('');
-  } catch(e) { tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;color:var(--error);padding:24px;">Gagal memuat.</td></tr>`; }
-}
+    } catch (e) { tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--error);padding:24px;">Gagal memuat.</td></tr>`; }
+  }
 
-async function confirmPayment(id) {
-  if (!confirm('Konfirmasi pembayaran ini?')) return;
-  const res = await fetch('/api/payments/'+id+'/confirm',{method:'POST'}).then(r=>r.json());
-  if (res.success) { showToast('Pembayaran dikonfirmasi!'); loadPayments(); loadOverview(); }
-  else showToast(res.message||'Gagal','error');
-}
+  async function confirmPayment(id) {
+    if (!confirm('Konfirmasi pembayaran ini?')) return;
+    const res = await fetch('/api/payments/' + id + '/confirm', { method: 'POST' }).then(r => r.json());
+    if (res.success) { showToast('Pembayaran dikonfirmasi!'); loadPayments(); loadOverview(); }
+    else showToast(res.message || 'Gagal', 'error');
+  }
 
-// ── Customers ─────────────────────────────────────────────────────────────────
-async function loadCustomers() {
-  const tbody = document.getElementById('customers-tbody');
-  tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--gray-600);">Memuat...</td></tr>`;
-  try {
-    const data = await fetch('/api/customers').then(r=>r.json());
-    const rows = data.customers||[];
-    if (!rows.length) { tbody.innerHTML=`<tr><td colspan="4"><div class="adm-empty"><i class="fas fa-users"></i><p>Belum ada customer.</p></div></td></tr>`; return; }
-    tbody.innerHTML = rows.map(c=>`<tr>
-      <td class="bold">${c.fullname||'-'}</td>
-      <td style="color:var(--gray-600);">${c.email||'-'}</td>
-      <td>${c.phone||'—'}</td>
+  // ── Customers ─────────────────────────────────────────────────────────────────
+  async function loadCustomers() {
+    const tbody = document.getElementById('customers-tbody');
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--gray-600);">Memuat...</td></tr>`;
+    try {
+      const data = await fetch('/api/customers').then(r => r.json());
+      const rows = data.customers || [];
+      if (!rows.length) { tbody.innerHTML = `<tr><td colspan="4"><div class="adm-empty"><i class="fas fa-users"></i><p>Belum ada customer.</p></div></td></tr>`; return; }
+      tbody.innerHTML = rows.map(c => `<tr>
+      <td class="bold">${c.fullname || '-'}</td>
+      <td style="color:var(--gray-600);">${c.email || '-'}</td>
+      <td>${c.phone || '—'}</td>
       <td style="color:var(--gray-600);font-size:.82rem;">${fmtDate(c.created_at)}</td>
     </tr>`).join('');
-  } catch(e) { tbody.innerHTML=`<tr><td colspan="4" style="text-align:center;color:var(--error);padding:24px;">Gagal memuat.</td></tr>`; }
-}
+    } catch (e) { tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--error);padding:24px;">Gagal memuat.</td></tr>`; }
+  }
 
-// ── Settings ──────────────────────────────────────────────────────────────────
-async function loadSettings() {
-  try {
-    const data = await fetch('/api/settings').then(r=>r.json());
-    const s = data.settings||{};
-    document.getElementById('s-name').value         = s.studio_name  ||'';
-    document.getElementById('s-tagline').value      = s.tagline      ||'';
-    document.getElementById('s-address').value      = s.address      ||'';
-    document.getElementById('s-hours').value        = s.hours        ||'';
-    document.getElementById('s-whatsapp').value     = s.whatsapp     ||'';
-    document.getElementById('s-email').value        = s.email        ||'';
-    document.getElementById('s-instagram').value    = s.instagram    ||'';
-    document.getElementById('s-facebook').value     = s.facebook     ||'';
-    document.getElementById('s-slots').value        = s.slots        ||'';
-    document.getElementById('s-max-slot').value     = s.max_slot     ||'';
-    document.getElementById('s-advance-days').value = s.advance_days ||'';
-    document.getElementById('s-welcome').value      = s.welcome_msg  ||'';
-    document.getElementById('s-booking-note').value = s.booking_note ||'';
-  } catch(e) { console.warn('Settings load failed',e); }
-}
+  // ── Settings ──────────────────────────────────────────────────────────────────
+  async function loadSettings() {
+    try {
+      const data = await fetch('/api/settings').then(r => r.json());
+      const s = data.settings || {};
+      document.getElementById('s-name').value = s.studio_name || '';
+      document.getElementById('s-tagline').value = s.tagline || '';
+      document.getElementById('s-address').value = s.address || '';
+      document.getElementById('s-hours').value = s.hours || '';
+      document.getElementById('s-whatsapp').value = s.whatsapp || '';
+      document.getElementById('s-email').value = s.email || '';
+      document.getElementById('s-instagram').value = s.instagram || '';
+      document.getElementById('s-facebook').value = s.facebook || '';
+      document.getElementById('s-slots').value = s.slots || '';
+      document.getElementById('s-max-slot').value = s.max_slot || '';
+      document.getElementById('s-advance-days').value = s.advance_days || '';
+      document.getElementById('s-welcome').value = s.welcome_msg || '';
+      document.getElementById('s-booking-note').value = s.booking_note || '';
+    } catch (e) { console.warn('Settings load failed', e); }
+  }
 
-async function saveSettings() {
-  const payload = {
-    studio_name:  document.getElementById('s-name').value,
-    tagline:      document.getElementById('s-tagline').value,
-    address:      document.getElementById('s-address').value,
-    hours:        document.getElementById('s-hours').value,
-    whatsapp:     document.getElementById('s-whatsapp').value,
-    email:        document.getElementById('s-email').value,
-    instagram:    document.getElementById('s-instagram').value,
-    facebook:     document.getElementById('s-facebook').value,
-    slots:        document.getElementById('s-slots').value,
-    max_slot:     document.getElementById('s-max-slot').value,
-    advance_days: document.getElementById('s-advance-days').value,
-    welcome_msg:  document.getElementById('s-welcome').value,
-    booking_note: document.getElementById('s-booking-note').value,
-  };
-  try {
-    const res = await fetch('/api/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(r=>r.json());
-    if (res.success) showToast('Pengaturan disimpan! ✅');
-    else showToast(res.message||'Gagal','error');
-  } catch(e) { showToast('Error: '+e.message,'error'); }
-}
+  async function saveSettings() {
+    const payload = {
+      studio_name: document.getElementById('s-name').value,
+      tagline: document.getElementById('s-tagline').value,
+      address: document.getElementById('s-address').value,
+      hours: document.getElementById('s-hours').value,
+      whatsapp: document.getElementById('s-whatsapp').value,
+      email: document.getElementById('s-email').value,
+      instagram: document.getElementById('s-instagram').value,
+      facebook: document.getElementById('s-facebook').value,
+      slots: document.getElementById('s-slots').value,
+      max_slot: document.getElementById('s-max-slot').value,
+      advance_days: document.getElementById('s-advance-days').value,
+      welcome_msg: document.getElementById('s-welcome').value,
+      booking_note: document.getElementById('s-booking-note').value,
+    };
+    try {
+      const res = await fetch('/api/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }).then(r => r.json());
+      if (res.success) showToast('Pengaturan disimpan! ✅');
+      else showToast(res.message || 'Gagal', 'error');
+    } catch (e) { showToast('Error: ' + e.message, 'error'); }
+  }
 
-// ── Init ──────────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', function() {
-  const now = new Date();
-  document.getElementById('current-date').textContent =
-    now.toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-  document.getElementById('today-label').textContent =
-    now.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
-  loadOverview();
-});
+  // ── Init ──────────────────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', function () {
+    const now = new Date();
+    document.getElementById('current-date').textContent =
+      now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    document.getElementById('today-label').textContent =
+      now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+    loadOverview();
+
+    // Attach event listeners for forms
+    const formArtist = document.getElementById('form-artist');
+    if (formArtist) formArtist.addEventListener('submit', submitArtist);
+
+    const formService = document.getElementById('form-service');
+    if (formService) formService.addEventListener('submit', submitService);
+
+    const formGallery = document.getElementById('form-gallery');
+    if (formGallery) formGallery.addEventListener('submit', submitGallery);
+  });
 </script>
 {% endblock %}
