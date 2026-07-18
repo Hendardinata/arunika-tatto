@@ -97,4 +97,4 @@ Jika Anda ingin menambahkan fitur atau memperbaiki *bug*, jangan ragu untuk mela
 
 ## 📄 Lisensi
 Proyek ini dibuat untuk keperluan manajemen studio internal dan portofolio pembelajaran. 
-*Made with ❤️ for tattoo art.*
+*Made with ❤️ for tattoo art (by Hendardinata_).*
